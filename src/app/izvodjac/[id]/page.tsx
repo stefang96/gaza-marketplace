@@ -142,6 +142,10 @@ export default async function ArtistPage({
               >
                 Pošalji upit za rezervaciju
               </Link>
+            ) : user ? (
+              <p className="mt-4 rounded-[12px] bg-surface-2 p-3 text-center text-xs text-muted">
+                Ovo je javni profil izvođača. Upite šalju naručioci.
+              </p>
             ) : (
               <Link href="/prijava" className="btn-primary mt-4 w-full py-3 text-base">
                 Prijavi se za slanje upita

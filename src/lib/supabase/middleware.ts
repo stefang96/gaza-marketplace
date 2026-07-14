@@ -45,6 +45,8 @@ export async function updateSession(request: NextRequest) {
   const needsManager = MANAGER_PREFIXES.some((p) => path.startsWith(p));
   const needsOrganizer = ORGANIZER_PREFIXES.some((p) => path.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => path.startsWith(p));
+  // Public for guests (discovery), but not the manager/artist flow when logged in.
+  const isDiscovery = path.startsWith("/pretraga");
 
   // Not logged in and hitting a protected area -> to login.
   if (!user && (needsManager || needsOrganizer)) {
@@ -54,9 +56,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && (needsManager || needsOrganizer || isAuthRoute)) {
+  if (user && (needsManager || needsOrganizer || isAuthRoute || isDiscovery)) {
     const role = (user.user_metadata?.role as string | undefined) ?? null;
     const isOrganizer = role === "ORGANIZER";
+
+    // Logged-in supply side has no business on the organizer search.
+    if (isDiscovery && !isOrganizer) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/panel";
+      return NextResponse.redirect(url);
+    }
 
     // Already logged in -> keep away from auth pages, send to their home.
     if (isAuthRoute) {
