@@ -83,6 +83,16 @@ values
    'Spoj saksofona i DJ seta. Elegantne proslave, koktel i klub.',
    '{"Sax","DJ","Lounge","Koktel"}', 700, 4.5, 14, false);
 
+-- YouTube linkovi (snimci nastupa) — demo.
+update artists set youtube_url = 'https://www.youtube.com/@GusanjeTruba'
+  where id = '10000000-0000-0000-0000-000000000002';
+update artists set youtube_url = 'https://www.youtube.com/results?search_query=narodna+muzika+uzivo'
+  where id = '10000000-0000-0000-0000-000000000001';
+update artists set youtube_url = 'https://www.youtube.com/results?search_query=cover+bend+svadba'
+  where id = '10000000-0000-0000-0000-000000000004';
+update artists set youtube_url = 'https://www.youtube.com/results?search_query=tamburasi+uzivo'
+  where id = '10000000-0000-0000-0000-000000000006';
+
 -- ---------- Slobodni termini ----------
 insert into availability (artist_id, date, status) values
   ('10000000-0000-0000-0000-000000000001', '2026-07-25', 'FREE'),

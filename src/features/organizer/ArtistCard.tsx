@@ -31,6 +31,7 @@ export function ArtistCard({ artist }: { artist: ArtistCardModel }) {
         <span className="chip chip-neutral">{GENRE_LABELS[artist.genre]}</span>
         <span className="chip chip-neutral">📍 {artist.city}</span>
         {artist.verified && <VerifiedChip />}
+        {artist.youtubeUrl && <span className="chip chip-neutral">🎬 Video</span>}
       </div>
 
       <div className="mt-4 flex items-end justify-between border-t border-line pt-4">

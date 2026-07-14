@@ -49,6 +49,7 @@ export interface Artist {
   ratingAvg: number;
   ratingCount: number;
   verified: boolean;
+  youtubeUrl: string | null;
 }
 
 export interface AvailabilitySlot {
@@ -92,8 +93,18 @@ export interface Review {
 }
 
 // --- View models (joined) ---
+export interface BookingOrganizer {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  avatarColor: string;
+  createdAt: string;
+}
+
 export interface BookingWithArtist extends BookingRequest {
   artist: Pick<Artist, "id" | "name" | "kind" | "genre" | "verified"> & {
     avatarColor?: string;
   };
+  organizer?: BookingOrganizer;
 }

@@ -27,13 +27,13 @@ export async function createBookingRequest(
   const eventType = String(formData.get("eventType") ?? "").trim();
   const market = (String(formData.get("market") ?? "DOMESTIC") as Market);
   const city = String(formData.get("city") ?? "").trim();
-  const country = String(formData.get("country") ?? "").trim() || "Srbija";
+  const country = String(formData.get("country") ?? "").trim();
   const date = String(formData.get("date") ?? "");
   const guests = parseInt(String(formData.get("guests") ?? "0"), 10) || 0;
   const message = String(formData.get("message") ?? "").trim();
 
-  if (!artistId || !eventType || !city || !date) {
-    return { ok: false, error: "Popuni tip događaja, grad i datum." };
+  if (!artistId || !eventType || !city || !country || !date) {
+    return { ok: false, error: "Popuni tip događaja, grad, državu i datum." };
   }
 
   const supabase = await createClient();

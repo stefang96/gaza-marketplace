@@ -22,9 +22,28 @@ export const GENRE_OPTIONS: { value: Genre; label: string }[] = (
 ).map((g) => ({ value: g, label: GENRE_LABELS[g] }));
 
 export const MARKET_LABELS: Record<Market, string> = {
-  DOMESTIC: "U zemlji",
+  DOMESTIC: "Balkan",
   DIASPORA: "Dijaspora",
 };
+
+// Države za select u formi upita.
+export const BALKAN_COUNTRIES = [
+  "Srbija",
+  "Bosna i Hercegovina",
+  "Crna Gora",
+  "Severna Makedonija",
+  "Hrvatska",
+  "Slovenija",
+];
+
+export const DIASPORA_COUNTRIES = [
+  "Austrija",
+  "Nemačka",
+  "Švajcarska",
+  "Švedska",
+  "Francuska",
+  "Holandija",
+];
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   ARTIST: "Izvođač",

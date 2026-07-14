@@ -23,6 +23,7 @@ export function mapArtist(row: any): Artist {
     ratingAvg: Number(row.rating_avg),
     ratingCount: row.rating_count,
     verified: row.verified,
+    youtubeUrl: row.youtube_url ?? null,
   };
 }
 

@@ -68,6 +68,21 @@ export default async function ArtistPage({
                 </span>
               ))}
             </div>
+
+            {artist.youtubeUrl && (
+              <a
+                href={artist.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary mt-4 inline-flex"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M21.6 7.2a2.7 2.7 0 00-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.7.5A2.7 2.7 0 002.4 7.2 28 28 0 002 12a28 28 0 00.4 4.8 2.7 2.7 0 001.9 1.9c1.7.5 7.7.5 7.7.5s6 0 7.7-.5a2.7 2.7 0 001.9-1.9A28 28 0 0022 12a28 28 0 00-.4-4.8z" fill="#E4553B" />
+                  <path d="M10 15l5-3-5-3v6z" fill="#fff" />
+                </svg>
+                Pogledaj nastup
+              </a>
+            )}
           </div>
 
           {/* Pricelist */}

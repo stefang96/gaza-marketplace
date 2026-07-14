@@ -9,6 +9,8 @@ import {
   EVENT_TYPES,
   DOMESTIC_CITIES,
   DIASPORA_CITIES,
+  BALKAN_COUNTRIES,
+  DIASPORA_COUNTRIES,
   COMMISSION_RATE,
   formatEur,
 } from "@/lib/constants";
@@ -34,6 +36,7 @@ export function BookingForm({
   const feeTotal = priceFrom + logisticsFee + commission;
 
   const cities = market === "DIASPORA" ? DIASPORA_CITIES : DOMESTIC_CITIES;
+  const countries = market === "DIASPORA" ? DIASPORA_COUNTRIES : BALKAN_COUNTRIES;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -51,7 +54,7 @@ export function BookingForm({
         {/* Market toggle */}
         <div className="mt-5 inline-flex rounded-[12px] bg-surface-2 p-1">
           <MarketBtn active={market === "DOMESTIC"} onClick={() => setMarket("DOMESTIC")}>
-            U zemlji
+            Balkan
           </MarketBtn>
           <MarketBtn active={market === "DIASPORA"} onClick={() => setMarket("DIASPORA")}>
             ✈ Dijaspora
@@ -98,13 +101,16 @@ export function BookingForm({
             <label className="label" htmlFor="country">
               Država
             </label>
-            <input
-              id="country"
-              name="country"
-              className="input"
-              defaultValue={market === "DIASPORA" ? "" : "Srbija"}
-              placeholder={market === "DIASPORA" ? "npr. Austrija" : "Srbija"}
-            />
+            <select key={market} id="country" name="country" className="input" defaultValue="">
+              <option value="" disabled>
+                Izaberi državu
+              </option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="label" htmlFor="guests">
