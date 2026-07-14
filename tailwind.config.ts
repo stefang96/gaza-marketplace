@@ -37,9 +37,9 @@ const config: Config = {
         xl: "24px",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(26,28,37,0.04), 0 8px 24px rgba(26,28,37,0.06)",
-        "soft-lg": "0 2px 4px rgba(26,28,37,0.05), 0 16px 40px rgba(26,28,37,0.08)",
-        focus: "0 0 0 3px var(--accent-soft)",
+        soft: "var(--shadow-card)",
+        "soft-lg": "var(--shadow-card-lg)",
+        focus: "var(--ring)",
       },
     },
   },

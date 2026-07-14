@@ -4,28 +4,32 @@
 
 :root {
   /* --- Gaža design tokens (spec §8) --- */
-  --page: #f4f5f8;
+  --page: #f5f6f9;
   --surface: #ffffff;
-  --surface-2: #f1f2f6;
-  --line: #e6e8ef;
-  --line-2: #d8dbe4;
+  --surface-2: #f2f3f7;
+  --line: #e7e9f0;
+  --line-2: #d9dce5;
 
-  --ink: #1a1c25;
-  --ink-soft: #4a4d59;
-  --muted: #787c8a;
+  --ink: #171922;
+  --ink-soft: #464a57; /* darkened for readability */
+  --muted: #6c7080; /* darkened for AA contrast on white */
 
   --accent: #5a4be3;
   --accent-strong: #4737c4;
   --accent-soft: #eceafc;
+  --accent-grad: linear-gradient(135deg, #6455ea 0%, #4d3cd6 100%);
 
-  --green: #16a46e; /* SAMO za escrow / verifikovano / potvrđeno */
-  --green-soft: #e4f6ee;
+  --green: #12996a; /* SAMO za escrow / verifikovano / potvrđeno */
+  --green-soft: #e2f5ec;
 
-  --coral: #e4553b;
-  --amber: #e8a21e;
+  --coral: #df4f36;
+  --amber: #d9930f;
   --blue: #3b62d6;
 
-  --radius: 16px;
+  --radius: 18px;
+  --ring: 0 0 0 3px rgba(90, 75, 227, 0.18);
+  --shadow-card: 0 1px 2px rgba(23, 25, 34, 0.04), 0 6px 20px rgba(23, 25, 34, 0.05);
+  --shadow-card-lg: 0 2px 6px rgba(23, 25, 34, 0.06), 0 18px 44px rgba(23, 25, 34, 0.1);
 }
 
 * {
@@ -37,46 +41,110 @@ html {
 }
 
 body {
-  background: var(--page);
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 420px at 50% -160px, rgba(90, 75, 227, 0.07), transparent 70%),
+    var(--page);
   color: var(--ink);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 15.5px;
+  line-height: 1.6;
+  letter-spacing: -0.003em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  color: var(--ink);
+}
+
+/* Smooth interactive feedback everywhere */
+a,
+button {
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* Nicer focus outline for keyboard users */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 /* --- Component layer --- */
 @layer components {
   .card {
-    @apply bg-surface border border-line rounded-card shadow-soft;
+    background: var(--surface);
+    border: 1px solid rgba(23, 25, 34, 0.06);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
   }
 
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-[12px] px-4 py-2.5
-           text-sm font-semibold transition-colors disabled:opacity-50
-           disabled:cursor-not-allowed focus:outline-none focus-visible:shadow-focus;
+           text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed
+           disabled:shadow-none disabled:translate-y-0;
   }
   .btn-primary {
-    @apply btn bg-accent text-white hover:bg-accent-strong;
+    @apply btn text-white;
+    background-image: var(--accent-grad);
+    box-shadow: 0 1px 2px rgba(71, 55, 196, 0.25), 0 6px 16px rgba(90, 75, 227, 0.28);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.04);
+    box-shadow: 0 2px 4px rgba(71, 55, 196, 0.28), 0 10px 22px rgba(90, 75, 227, 0.34);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    filter: brightness(0.98);
   }
   .btn-secondary {
-    @apply btn bg-surface text-ink border border-line-2 hover:bg-surface-2;
+    @apply btn bg-surface text-ink;
+    border: 1px solid var(--line-2);
+  }
+  .btn-secondary:hover {
+    @apply bg-surface-2;
+    border-color: var(--muted);
   }
   .btn-ghost {
-    @apply btn text-ink-soft hover:bg-surface-2;
+    @apply btn text-ink-soft hover:bg-surface-2 hover:text-ink;
   }
   .btn-danger {
-    @apply btn bg-white text-coral border border-line-2 hover:bg-[#fdeeeb];
+    @apply btn bg-white text-coral;
+    border: 1px solid var(--line-2);
+  }
+  .btn-danger:hover {
+    background: #fdeeeb;
+    border-color: rgba(223, 79, 54, 0.4);
   }
 
   .input {
-    @apply w-full rounded-[12px] border border-line-2 bg-surface px-3.5 py-2.5
-           text-sm text-ink placeholder:text-muted
-           focus:outline-none focus:border-accent focus:shadow-focus;
+    @apply w-full rounded-[12px] bg-surface px-3.5 py-2.5 text-sm text-ink
+           placeholder:text-muted;
+    border: 1px solid var(--line-2);
+    transition: border-color 0.15s ease, box-shadow 0.18s ease;
+  }
+  .input:hover {
+    border-color: var(--muted);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--ring);
   }
   .label {
     @apply block text-sm font-medium text-ink-soft mb-1.5;
@@ -85,10 +153,12 @@ h1, h2, h3, h4, .font-display {
   /* Status chips — significance per spec §8 */
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
   }
-  .chip-new    { @apply text-blue; background: rgba(59, 98, 214, 0.1); }        /* novo */
-  .chip-pending{ @apply text-coral; background: rgba(228, 85, 59, 0.1); }       /* čeka */
-  .chip-deposit{ @apply text-amber; background: rgba(232, 162, 30, 0.12); }     /* kapara */
+  .chip-new    { @apply text-blue; background: rgba(59, 98, 214, 0.11); }        /* novo */
+  .chip-pending{ @apply text-coral; background: rgba(223, 79, 54, 0.11); }      /* čeka */
+  .chip-deposit{ @apply text-amber; background: rgba(217, 147, 15, 0.14); }     /* kapara */
   .chip-confirmed { @apply text-green; background: var(--green-soft); }         /* potvrđeno */
   .chip-neutral{ @apply text-ink-soft bg-surface-2; }
   .chip-verified { @apply text-green; background: var(--green-soft); }
