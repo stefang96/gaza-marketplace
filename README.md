@@ -34,9 +34,21 @@ za dijasporu**.
   simuliranim akcijama (uplati kaparu → potvrdi odsvirano → isplata / otkaži →
   refund).
 
-Sledeće (van ovog prolaza): **M5** menadžerski panel + jedinstven inbox, **M6**
-povezivanje obe strane (prihvati/odbij), **M7** edit profila + upload + kalendar,
-**M8** polish.
+- **M5** — Menadžerski panel `/panel`: KPI kartice, roster sa badge-om broja
+  otvorenih upita, **jedinstven inbox** svih upita za sve izvođače sa filterima
+  (Balkan/Dijaspora + status). Roster stranica `/panel/izvodjaci`. Detalj upita
+  `/panel/upit/[id]`: verifikovan naručilac, razbijen honorar (izvođaču /
+  logistika / provizija 15% / ukupno), logistika, escrow stepper.
+- **M6** — Povezivanje obe strane: menadžer **prihvata** (→ Potvrđeno), **odbija**
+  (→ refund ako je bilo kapare), **predlaže izmenu**, otvaranje NEW upita ga
+  označava kao viđen (→ Čeka potvrdu), i može da potvrdi nastup (→ isplata).
+  Promena statusa se **vidi kod oba korisnika** (isti red u bazi).
+
+Dodatno: **YouTube „Pogledaj nastup"** link na profilu izvođača; forma upita ima
+preklopnik **Balkan / Dijaspora** sa select-om države po tržištu.
+
+Sledeće (van ovog prolaza): **M7** edit profila izvođača + upload slika/video +
+kalendar termina + „Dodaj izvođača"; **M8** polish (prazna stanja, animacije).
 
 ## Pokretanje lokalno
 
@@ -87,6 +99,13 @@ Inbucket (mejlovi) `http://127.0.0.1:54324`.
    **Uplati kaparu u escrow** → stepper pomera na „Kapara u escrow-u“.
 5. Za završen ciklus: **Potvrdi da je odsvirano** → status *Završeno*, escrow
    *Isplaćeno*. Ili **Otkaži** → *Otkazano* + *Refundirano*.
+
+**Petlja marketplace-a (obe strane):**
+6. Odjavi se, prijavi kao menadžer `nenad@gaza.rs` → **Panel**.
+7. Otvori upit sa statusom *Novo* → automatski postaje *Čeka potvrdu* →
+   **Prihvati upit**.
+8. Vrati se kao `marko@gaza.rs` → **Moji upiti**: isti upit je sada *Potvrđeno* i
+   možeš da **uplatiš kaparu**. To je zaokružena petlja.
 
 ## Napomene o simulaciji i integracijama
 
