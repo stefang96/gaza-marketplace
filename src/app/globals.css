@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* --- Gaža design tokens (spec §8) --- */
+  --page: #f4f5f8;
+  --surface: #ffffff;
+  --surface-2: #f1f2f6;
+  --line: #e6e8ef;
+  --line-2: #d8dbe4;
+
+  --ink: #1a1c25;
+  --ink-soft: #4a4d59;
+  --muted: #787c8a;
+
+  --accent: #5a4be3;
+  --accent-strong: #4737c4;
+  --accent-soft: #eceafc;
+
+  --green: #16a46e; /* SAMO za escrow / verifikovano / potvrđeno */
+  --green-soft: #e4f6ee;
+
+  --coral: #e4553b;
+  --amber: #e8a21e;
+  --blue: #3b62d6;
+
+  --radius: 16px;
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* --- Component layer --- */
+@layer components {
+  .card {
+    @apply bg-surface border border-line rounded-card shadow-soft;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-[12px] px-4 py-2.5
+           text-sm font-semibold transition-colors disabled:opacity-50
+           disabled:cursor-not-allowed focus:outline-none focus-visible:shadow-focus;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-strong;
+  }
+  .btn-secondary {
+    @apply btn bg-surface text-ink border border-line-2 hover:bg-surface-2;
+  }
+  .btn-ghost {
+    @apply btn text-ink-soft hover:bg-surface-2;
+  }
+  .btn-danger {
+    @apply btn bg-white text-coral border border-line-2 hover:bg-[#fdeeeb];
+  }
+
+  .input {
+    @apply w-full rounded-[12px] border border-line-2 bg-surface px-3.5 py-2.5
+           text-sm text-ink placeholder:text-muted
+           focus:outline-none focus:border-accent focus:shadow-focus;
+  }
+  .label {
+    @apply block text-sm font-medium text-ink-soft mb-1.5;
+  }
+
+  /* Status chips — significance per spec §8 */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+  .chip-new    { @apply text-blue; background: rgba(59, 98, 214, 0.1); }        /* novo */
+  .chip-pending{ @apply text-coral; background: rgba(228, 85, 59, 0.1); }       /* čeka */
+  .chip-deposit{ @apply text-amber; background: rgba(232, 162, 30, 0.12); }     /* kapara */
+  .chip-confirmed { @apply text-green; background: var(--green-soft); }         /* potvrđeno */
+  .chip-neutral{ @apply text-ink-soft bg-surface-2; }
+  .chip-verified { @apply text-green; background: var(--green-soft); }
+  .chip-diaspora { @apply text-accent-strong; background: var(--accent-soft); }
+}
