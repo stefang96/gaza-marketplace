@@ -6,6 +6,7 @@ import { getT } from "@/i18n/server";
 import { Avatar } from "@/components/ui/Avatar";
 import { Stars } from "@/components/ui/Stars";
 import { VerifiedChip } from "@/components/ui/StatusChip";
+import { ArtistCover } from "@/components/ArtistCover";
 import { formatEur, formatDate } from "@/lib/constants";
 import { avatarColorFor } from "@/features/auth/avatarColor";
 import type { Review } from "@/lib/types";
@@ -42,13 +43,15 @@ export default async function ArtistPage({
         {/* Left: profile */}
         <div className="space-y-6">
           <div className="card overflow-hidden">
-            {artist.photoUrl && (
+            {artist.photoUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={artist.photoUrl}
                 alt={artist.name}
                 className="h-52 w-full object-cover"
               />
+            ) : (
+              <ArtistCover name={artist.name} genre={artist.genre} className="h-52 w-full" />
             )}
             <div className="p-6">
             <div className="flex items-start gap-4">
