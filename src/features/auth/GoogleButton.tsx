@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { startGoogleAuth } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 import { useT } from "@/i18n/provider";
 import type { UserRole } from "@/lib/types";
 
@@ -10,16 +10,25 @@ export function GoogleButton({ role }: { role: UserRole }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Initiate OAuth from the browser client so the PKCE code_verifier is stored
+  // in a cookie the /auth/callback server route can read. redirectTo uses the
+  // current origin, so it works on localhost and on the deployed domain alike.
   async function onClick() {
     setLoading(true);
     setError(null);
-    const res = await startGoogleAuth(role);
-    if (res.url) {
-      window.location.href = res.url;
-    } else {
-      setError(res.error ?? t.auth.googleNotConfigured);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        // role carried for first-time Google users; read in /auth/callback
+        redirectTo: `${window.location.origin}/auth/callback?role=${role}`,
+      },
+    });
+    if (error) {
+      setError(error.message || t.auth.googleNotConfigured);
       setLoading(false);
     }
+    // On success the browser is redirected to Google automatically.
   }
 
   return (
