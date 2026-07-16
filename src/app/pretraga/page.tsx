@@ -18,6 +18,7 @@ export default async function SearchPage({
     city: sp.grad || undefined,
     maxPrice: sp.budzet ? parseInt(sp.budzet, 10) : undefined,
     q: sp.q || undefined,
+    availableFrom: sp.datum || undefined,
   });
 
   return (

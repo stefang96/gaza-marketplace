@@ -25,6 +25,7 @@ export interface ArtistFilters {
   city?: string;
   maxPrice?: number;
   q?: string;
+  availableFrom?: string; // ISO date — only artists free on/after this date
 }
 
 export interface ArtistCard extends Artist {
@@ -48,23 +49,26 @@ export async function getArtists(filters: ArtistFilters = {}): Promise<ArtistCar
   const artists = (data ?? []).map(mapArtist);
 
   // Attach the next free availability date (for the "slobodan termin" badge).
+  // When a date filter is set, only count slots on/after it.
   const ids = artists.map((a) => a.id);
   const freeByArtist = new Map<string, string>();
+  const floor = filters.availableFrom || new Date().toISOString().slice(0, 10);
   if (ids.length) {
-    const today = new Date().toISOString().slice(0, 10);
     const { data: slots } = await supabase
       .from("availability")
       .select("artist_id, date, status")
       .in("artist_id", ids)
       .eq("status", "FREE")
-      .gte("date", today)
+      .gte("date", floor)
       .order("date", { ascending: true });
     for (const s of slots ?? []) {
       if (!freeByArtist.has(s.artist_id)) freeByArtist.set(s.artist_id, s.date);
     }
   }
 
-  return artists.map((a) => ({ ...a, nextFreeDate: freeByArtist.get(a.id) ?? null }));
+  const withFree = artists.map((a) => ({ ...a, nextFreeDate: freeByArtist.get(a.id) ?? null }));
+  // If filtering by date, keep only artists that actually have a free slot then.
+  return filters.availableFrom ? withFree.filter((a) => a.nextFreeDate) : withFree;
 }
 
 export async function getArtistById(id: string) {
@@ -201,6 +205,16 @@ export async function getManagerBookingById(id: string) {
   if (!data) return null;
   const [withOrg] = await attachOrganizers(supabase, [mapBookingWithArtist(data)]);
   return withOrg;
+}
+
+export async function getReviewForBooking(bookingId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("booking_id", bookingId)
+    .maybeSingle();
+  return data ? mapReview(data) : null;
 }
 
 export { mapBooking };

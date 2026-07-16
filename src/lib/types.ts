@@ -50,6 +50,7 @@ export interface Artist {
   ratingCount: number;
   verified: boolean;
   youtubeUrl: string | null;
+  photoUrl: string | null;
 }
 
 export interface AvailabilitySlot {

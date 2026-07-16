@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { Avatar } from "./ui/Avatar";
 import { LocaleSwitcher } from "./LocaleSwitcher";
+import { MobileNav, type NavItem } from "./MobileNav";
 import { getSessionUser } from "@/lib/auth";
 import { getT } from "@/i18n/server";
 import { SignOutButton } from "@/features/auth/SignOutButton";
@@ -10,10 +11,29 @@ export async function SiteHeader() {
   const [user, { t }] = await Promise.all([getSessionUser(), getT()]);
   const isOrganizer = user?.role === "ORGANIZER";
 
+  // Same links for the mobile hamburger menu, per role.
+  const mobileItems: NavItem[] = !user
+    ? [
+        { href: "/za-organizatore", label: t.header.forOrganizers },
+        { href: "/za-izvodjace", label: t.header.forArtists },
+        { href: "/prijava", label: t.header.login },
+        { href: "/registracija", label: t.header.register },
+      ]
+    : isOrganizer
+      ? [
+          { href: "/pretraga", label: t.header.search },
+          { href: "/moji-upiti", label: t.header.myBookings },
+        ]
+      : [
+          { href: "/panel", label: t.header.panel },
+          { href: "/panel/izvodjaci", label: t.header.artists },
+        ];
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3 md:gap-8">
+          <MobileNav items={mobileItems} />
           <Logo />
           <nav className="hidden items-center gap-1 md:flex">
             {!user && (

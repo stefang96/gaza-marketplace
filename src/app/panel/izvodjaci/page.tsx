@@ -44,10 +44,9 @@ export default async function RosterPage() {
             {artists.length} {t.roster.subtitlePrefix}
           </p>
         </div>
-        {/* M7: pravo dodavanje izvođača */}
-        <button className="btn-primary opacity-60" title={t.roster.addArtistTooltip} disabled>
+        <Link href="/panel/izvodjaci/novi" className="btn-primary">
           {t.roster.addArtist}
-        </button>
+        </Link>
       </div>
 
       <div className="grid gap-3">
@@ -56,7 +55,7 @@ export default async function RosterPage() {
           return (
             <Link
               key={a.id}
-              href={`/izvodjac/${a.id}`}
+              href={`/panel/izvodjaci/${a.id}/izmena`}
               className="card flex items-center gap-4 p-4 transition-shadow hover:shadow-soft-lg"
             >
               <Avatar name={a.name} color={avatarColorFor(a.name)} size="lg" />

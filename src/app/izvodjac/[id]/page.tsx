@@ -41,7 +41,16 @@ export default async function ArtistPage({
       <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* Left: profile */}
         <div className="space-y-6">
-          <div className="card p-6">
+          <div className="card overflow-hidden">
+            {artist.photoUrl && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={artist.photoUrl}
+                alt={artist.name}
+                className="h-52 w-full object-cover"
+              />
+            )}
+            <div className="p-6">
             <div className="flex items-start gap-4">
               <Avatar name={artist.name} color={avatarColorFor(artist.name)} size="lg" />
               <div className="flex-1">
@@ -80,6 +89,7 @@ export default async function ArtistPage({
                 {t.artist.watchPerformance}
               </a>
             )}
+            </div>
           </div>
 
           {/* Pricelist */}

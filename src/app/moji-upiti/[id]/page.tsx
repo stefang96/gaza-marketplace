@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import { getBookingById } from "@/lib/db/queries";
+import { getBookingById, getReviewForBooking } from "@/lib/db/queries";
 import { getT } from "@/i18n/server";
 import { Avatar } from "@/components/ui/Avatar";
 import { StatusChip, MarketChip } from "@/components/ui/StatusChip";
 import { EscrowStepper } from "@/components/EscrowStepper";
 import { BookingActions } from "@/features/organizer/BookingActions";
+import { ReviewSection } from "@/features/organizer/ReviewSection";
 import { formatEur, formatDate } from "@/lib/constants";
 import { avatarColorFor } from "@/features/auth/avatarColor";
 import type { BookingWithArtist } from "@/lib/types";
@@ -28,7 +29,11 @@ export default async function BookingDetailPage({
   const user = await getSessionUser();
   if (!user) redirect(`/prijava?next=/moji-upiti/${id}`);
 
-  const [booking, { t }] = await Promise.all([getBookingById(id), getT()]);
+  const [booking, review, { t }] = await Promise.all([
+    getBookingById(id),
+    getReviewForBooking(id),
+    getT(),
+  ]);
   if (!booking || booking.organizerUserId !== user.id) notFound();
   const d = t.bookingDetail;
 
@@ -99,6 +104,15 @@ export default async function BookingDetailPage({
 
           {/* Logistics */}
           <LogisticsSection booking={booking} t={t} />
+
+          {/* Review (after completed gig) */}
+          {booking.status === "COMPLETED" && (
+            <ReviewSection
+              bookingId={booking.id}
+              existingRating={review?.rating ?? null}
+              existingText={review?.text ?? null}
+            />
+          )}
         </div>
 
         {/* Right: escrow + actions */}

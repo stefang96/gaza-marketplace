@@ -54,8 +54,21 @@ menja u skladu. Rečnici su u [`src/i18n/dictionaries/`](src/i18n/dictionaries/)
 (tipizirani — TypeScript prijavljuje svaki string koji nedostaje u nekom jeziku).
 Seed sadržaj (imena bendova, biografije, gradovi) ostaje kako je unet.
 
-Sledeće (van ovog prolaza): **M7** edit profila izvođača + upload slika/video +
-kalendar termina + „Dodaj izvođača"; **M8** polish (prazna stanja, animacije).
+- **M7** — Upravljanje rosterom: **„Dodaj izvođača"**, **izmena profila**
+  (repertoar, tagovi, cenovnik, YouTube, naslovna slika-URL) i **kalendar
+  slobodnih termina** (dodavanje/uklanjanje datuma). Rute
+  `/panel/izvodjaci/novi` i `/panel/izvodjaci/[id]/izmena`.
+- **Utisci (reviews)** — posle `COMPLETED` gaže naručilac ostavlja ocenu +
+  komentar; DB trigger automatski preračunava prosečnu ocenu izvođača (radi pod
+  RLS-om bez davanja write prava naručiocu). Jedan utisak po gaži.
+- **Polish** — hamburger meni na telefonu, „Datum" filter sada zaista filtrira
+  po slobodnim terminima, loading skeletoni (pretraga/panel/moji-upiti).
+
+Sledeće (opciono): pravi upload slika/video (Supabase Storage), Twilio SMS +
+Google OAuth, auto-detekcija jezika, E2E testovi, e-mail notifikacije.
+
+> ⚠️ Nakon povlačenja ovih izmena pokreni **`npx supabase db reset`** — dodate su
+> migracije `0003` (photo_url) i `0004` (reviews.booking_id + trigger za ocene).
 
 ## Pokretanje lokalno
 

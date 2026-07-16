@@ -24,6 +24,7 @@ export function mapArtist(row: any): Artist {
     ratingCount: row.rating_count,
     verified: row.verified,
     youtubeUrl: row.youtube_url ?? null,
+    photoUrl: row.photo_url ?? null,
   };
 }
 
