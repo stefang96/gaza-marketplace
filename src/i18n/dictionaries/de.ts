@@ -9,6 +9,11 @@ export const de: Dictionary = {
     simulatedNote: "Treuhand und Zahlungen sind in dieser Version simuliert.",
     verified: "Verifiziert",
   },
+  meta: {
+    title: "Gaža — Balkan-Bands buchen, sicher bezahlt",
+    description:
+      "Gaža verbindet Auftraggeber mit Musikern und Bands auf dem Balkan und in der Diaspora. Zahlungen sind treuhänderisch geschützt, und die Logistik im Ausland übernehmen wir.",
+  },
   roles: { ARTIST: "Künstler", MANAGER: "Manager", ORGANIZER: "Auftraggeber" },
   markets: { DOMESTIC: "Balkan", DIASPORA: "Diaspora" },
   genres: {

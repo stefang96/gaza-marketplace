@@ -9,6 +9,11 @@ export const en: Dictionary = {
     simulatedNote: "Escrow and payments are simulated in this version.",
     verified: "Verified",
   },
+  meta: {
+    title: "Gaža — book Balkan bands, paid safely",
+    description:
+      "Gaža connects clients with musicians and bands across the Balkans and the diaspora. Payments are protected by escrow, and we handle the logistics abroad.",
+  },
   roles: { ARTIST: "Performer", MANAGER: "Manager", ORGANIZER: "Client" },
   markets: { DOMESTIC: "Balkans", DIASPORA: "Diaspora" },
   genres: {

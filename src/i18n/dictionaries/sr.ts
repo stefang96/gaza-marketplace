@@ -7,6 +7,11 @@ export const sr = {
     simulatedNote: "Escrow i uplate su simulirani u ovoj verziji.",
     verified: "Verifikovan",
   },
+  meta: {
+    title: "Gaža — svirke bez brige",
+    description:
+      "Marketplace koji povezuje muzičare i bendove sa naručiocima svirki — u zemlji i dijaspori. Zaštita plaćanja i logistika na nama.",
+  },
   roles: { ARTIST: "Izvođač", MANAGER: "Menadžer", ORGANIZER: "Naručilac" },
   markets: { DOMESTIC: "Balkan", DIASPORA: "Dijaspora" },
   genres: {
