@@ -108,19 +108,65 @@ insert into availability (artist_id, date, status) values
   ('10000000-0000-0000-0000-000000000008', '2026-08-01', 'FREE');
 
 -- ---------- Utisci ----------
+-- Napomena: trigger recompute_artist_rating() automatski računa rating_avg/count
+-- iz ovih redova, pa svaki izvođač ima nekoliko utisaka radi verodostojnog demoa.
 insert into reviews (artist_id, organizer_name, event_label, rating, text) values
+  -- a1 Milica
   ('10000000-0000-0000-0000-000000000001', 'Porodica Petrović', 'Svadba · Beograd', 5,
    'Milica je oduševila sve goste. Sve preporuke, escrow je radio bez problema.'),
   ('10000000-0000-0000-0000-000000000001', 'Slava Nikolić', 'Slava · Beč', 5,
    'Došla čak u Beč, logistiku su sredili oni. Vrhunski.'),
+  ('10000000-0000-0000-0000-000000000001', 'Jelena K.', 'Rođendan · Novi Sad', 5,
+   'Glas za pamćenje, repertoar taman kako smo tražili.'),
+  ('10000000-0000-0000-0000-000000000001', 'Dragan T.', 'Proslava · Beograd', 4,
+   'Sve super, samo bih voleo malo duži nastup.'),
+  -- a2 Orkestar Braće Nikolić
   ('10000000-0000-0000-0000-000000000002', 'Restoran „Stara vodenica“', 'Proslava · Čačak', 5,
    'Truba je digla ceo lokal. Dolaze ponovo.'),
   ('10000000-0000-0000-0000-000000000002', 'Marko M.', 'Svadba · Malme', 4,
    'Odlična atmosfera, malo kasnili sa dolaskom ali su nadoknadili.'),
+  ('10000000-0000-0000-0000-000000000002', 'Svadba Ilić', 'Svadba · Guča', 5,
+   'Najbolji trubači, gosti nisu silazili sa podijuma.'),
+  -- a3 DJ Vuk
+  ('10000000-0000-0000-0000-000000000003', 'Klub Mladost', 'Klupsko veče · Beograd', 5,
+   'Pun pogodak za set, publika oduševljena.'),
+  ('10000000-0000-0000-0000-000000000003', 'Nikola P.', 'Rođendan · Niš', 4,
+   'Dobra selekcija, brz dogovor.'),
+  ('10000000-0000-0000-0000-000000000003', 'Splav Sound', 'Klupsko veče · Beograd', 5,
+   'Radićemo opet, energija na nivou.'),
+  -- a4 Voltaža
   ('10000000-0000-0000-0000-000000000004', 'Korporacija DTX', 'Godišnjica · Novi Sad', 5,
    'Voltaža je profesionalna od početka do kraja.'),
+  ('10000000-0000-0000-0000-000000000004', 'Milan i Ana', 'Svadba · Novi Sad', 5,
+   'Odsvirali sve naše želje, fantastičan bend.'),
+  ('10000000-0000-0000-0000-000000000004', 'Bojana S.', 'Proslava · Zrenjanin', 4,
+   'Vrlo dobro, preporučujem za veselja.'),
+  -- a5 Tijana Marić
+  ('10000000-0000-0000-0000-000000000005', 'Caffe Lounge', 'Klupsko veče · Beograd', 5,
+   'Sjajan pop-folk program, pun splav.'),
+  ('10000000-0000-0000-0000-000000000005', 'Stefan V.', 'Proslava · Frankfurt', 4,
+   'Dobra atmosfera, dolazak organizovan bez problema.'),
+  ('10000000-0000-0000-0000-000000000005', 'Marija D.', 'Rođendan · Beč', 5,
+   'Presrećni smo, svi su plesali.'),
+  -- a6 Tamburaški orkestar „Bačka“
   ('10000000-0000-0000-0000-000000000006', 'Svadba Kovačević', 'Svadba · Subotica', 5,
-   'Tambure su bile tačka veče. Preporuka!');
+   'Tambure su bile tačka veče. Preporuka!'),
+  ('10000000-0000-0000-0000-000000000006', 'Vinarija Kovač', 'Proslava · Novi Sad', 5,
+   'Autentičan vojvođanski zvuk, divno.'),
+  ('10000000-0000-0000-0000-000000000006', 'Petar N.', 'Slava · Sombor', 5,
+   'Tradicija na najvišem nivou.'),
+  -- a7 Get Lucky Band
+  ('10000000-0000-0000-0000-000000000007', 'Firma Nexus', 'Korporativno · Beograd', 5,
+   'Funk i disco digli ekipu, odličan izbor za event.'),
+  ('10000000-0000-0000-0000-000000000007', 'Ivana M.', 'Svadba · Beograd', 4,
+   'Zabavni i profesionalni, malo glasno pri kraju.'),
+  ('10000000-0000-0000-0000-000000000007', 'Klub Vertigo', 'Party · Beograd', 5,
+   'Party bend za pamćenje.'),
+  -- a8 Nocturno
+  ('10000000-0000-0000-0000-000000000008', 'Hotel Ambasador', 'Koktel · Niš', 5,
+   'Sax & DJ spoj — elegantno i moderno.'),
+  ('10000000-0000-0000-0000-000000000008', 'Aleksandar R.', 'Proslava · Niš', 4,
+   'Vrlo dobar ugođaj za koktel deo večeri.');
 
 -- ---------- Upiti (mix statusa, domaći + dijaspora) ----------
 -- commission = 15% honorara; fee_total = fee_artist + logistics_fee + commission.
