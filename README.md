@@ -162,3 +162,46 @@ supabase/
   migrations/0001_init.sql # šema + RLS + trigger
   seed.sql                 # demo podaci
 ```
+
+## Deploy (Vercel + Supabase Cloud) — besplatno
+
+### 1) Supabase Cloud projekat
+- Napravi projekat na [supabase.com](https://supabase.com) (Free plan).
+- Iz **Project Settings → API** uzmi: `Project URL`, `anon` ključ, `service_role` ključ.
+
+### 2) Primeni šemu + seed na cloud
+```bash
+npx supabase login
+npx supabase link --project-ref <TVOJ-PROJECT-REF>
+npx supabase db push          # primeni migracije (0001–0004)
+```
+Seed (demo podaci) se ne primenjuje automatski — otvori **Supabase → SQL Editor**,
+nalepi sadržaj `supabase/seed.sql` i pokreni. (Opciono, samo za demo podatke.)
+
+### 3) Vercel
+- Uvezi GitHub repo `gaza-marketplace` na [vercel.com](https://vercel.com) (Hobby plan).
+- Framework: **Next.js** (auto-detektovano).
+
+### 4) Environment varijable na Vercel-u (Project → Settings → Environment Variables)
+| Ime | Vrednost |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<ref>.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon ključ |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role ključ (server-only) |
+| `NEXT_PUBLIC_SITE_URL` | `https://<tvoj-app>.vercel.app` |
+| `NEXT_PUBLIC_DEV_OTP` | `123456` (opciono) |
+
+### 5) Supabase Auth URL-ovi (za redirect posle prijave)
+Supabase → **Authentication → URL Configuration**:
+- **Site URL:** `https://<tvoj-app>.vercel.app`
+- **Redirect URLs:** dodaj `https://<tvoj-app>.vercel.app/auth/callback`
+
+### 6) Deploy
+Vercel gradi automatski na svaki `git push` na `main`. Prvi build → dobijaš živi link.
+
+### 7) (Opciono) Google OAuth u produkciji
+Supabase → **Authentication → Providers → Google** (uključi + client_id/secret), a u
+Google Console dodaj redirect `https://<ref>.supabase.co/auth/v1/callback`.
+
+> Napomena: telefon OTP u produkciji traži pravi SMS provajder (Twilio); escrow/plaćanje
+> ostaje simulirano dok se ne integriše PSP. Za demo koristi mejl prijavu.

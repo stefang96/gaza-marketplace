@@ -224,6 +224,17 @@ client_id = ""
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
 # Overrides the default auth redirectUrl.
 redirect_uri = ""
+
+# --- Google OAuth (spec §3) ---
+# 1) Napravi OAuth client u Google Cloud Console (Web application).
+# 2) Authorized redirect URI: http://127.0.0.1:54321/auth/v1/callback
+# 3) Ubaci client_id/secret u .env.local (SUPABASE_AUTH_GOOGLE_*), pa stavi enabled = true
+#    i restartuj: `npx supabase stop && npx supabase start`.
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
 # or any other third-party OIDC providers.
 url = ""
