@@ -19,6 +19,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Gaža — svirke bez brige",
   description:
     "Marketplace koji povezuje muzičare i bendove sa naručiocima svirki — u zemlji i dijaspori. Zaštita plaćanja i logistika na nama.",
