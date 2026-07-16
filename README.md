@@ -14,7 +14,8 @@ za dijasporu**.
 - **Tailwind CSS** — dizajn tokeni iz specifikacije (§8).
 - **Supabase** — Postgres baza, Auth (mejl+lozinka, telefon OTP, Google),
   Storage. Lokalno se diže preko Supabase CLI (Docker).
-- Jezik: **srpski (latinica)** · Valuta: **EUR** · Datum: `dd.mm.yyyy.`
+- Jezik: **srpski / engleski / nemački** (prebacivač u headeru, cookie
+  `gaza_locale`) · Valuta: **EUR** · Datum: `dd.mm.yyyy.`
 
 ## Šta je urađeno (Milestones M1–M4)
 
@@ -46,6 +47,12 @@ za dijasporu**.
 
 Dodatno: **YouTube „Pogledaj nastup"** link na profilu izvođača; forma upita ima
 preklopnik **Balkan / Dijaspora** sa select-om države po tržištu.
+
+**Lokalizacija (i18n):** ceo UI je preveden na **srpski, engleski i nemački**.
+Jezik se bira u headeru i pamti u cookie-ju (`gaza_locale`); `<html lang>` se
+menja u skladu. Rečnici su u [`src/i18n/dictionaries/`](src/i18n/dictionaries/)
+(tipizirani — TypeScript prijavljuje svaki string koji nedostaje u nekom jeziku).
+Seed sadržaj (imena bendova, biografije, gradovi) ostaje kako je unet.
 
 Sledeće (van ovog prolaza): **M7** edit profila izvođača + upload slika/video +
 kalendar termina + „Dodaj izvođača"; **M8** polish (prazna stanja, animacije).

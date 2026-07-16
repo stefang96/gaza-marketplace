@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { Avatar } from "./ui/Avatar";
+import { LocaleSwitcher } from "./LocaleSwitcher";
 import { getSessionUser } from "@/lib/auth";
-import { ROLE_LABELS } from "@/lib/constants";
+import { getT } from "@/i18n/server";
 import { SignOutButton } from "@/features/auth/SignOutButton";
 
 export async function SiteHeader() {
-  const user = await getSessionUser();
+  const [user, { t }] = await Promise.all([getSessionUser(), getT()]);
   const isOrganizer = user?.role === "ORGANIZER";
 
   return (
@@ -17,33 +18,34 @@ export async function SiteHeader() {
           <nav className="hidden items-center gap-1 md:flex">
             {!user && (
               <>
-                <NavLink href="/za-organizatore">Za organizatore</NavLink>
-                <NavLink href="/za-izvodjace">Za izvođače</NavLink>
+                <NavLink href="/za-organizatore">{t.header.forOrganizers}</NavLink>
+                <NavLink href="/za-izvodjace">{t.header.forArtists}</NavLink>
               </>
             )}
             {user && isOrganizer && (
               <>
-                <NavLink href="/pretraga">Pretraga</NavLink>
-                <NavLink href="/moji-upiti">Moji upiti</NavLink>
+                <NavLink href="/pretraga">{t.header.search}</NavLink>
+                <NavLink href="/moji-upiti">{t.header.myBookings}</NavLink>
               </>
             )}
             {user && !isOrganizer && (
               <>
-                <NavLink href="/panel">Panel</NavLink>
-                <NavLink href="/panel/izvodjaci">Izvođači</NavLink>
+                <NavLink href="/panel">{t.header.panel}</NavLink>
+                <NavLink href="/panel/izvodjaci">{t.header.artists}</NavLink>
               </>
             )}
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <LocaleSwitcher />
           {!user && (
             <>
               <Link href="/prijava" className="btn-ghost hidden sm:inline-flex">
-                Prijava
+                {t.header.login}
               </Link>
               <Link href="/registracija" className="btn-primary">
-                Registracija
+                {t.header.register}
               </Link>
             </>
           )}
@@ -53,10 +55,10 @@ export async function SiteHeader() {
                 <div className="text-sm font-semibold leading-tight text-ink">
                   {user.name}
                 </div>
-                <div className="text-xs text-muted">{ROLE_LABELS[user.role]}</div>
+                <div className="text-xs text-muted">{t.roles[user.role]}</div>
               </div>
               <Avatar name={user.name} color={user.avatarColor} size="md" />
-              <SignOutButton />
+              <SignOutButton title={t.header.signOut} />
             </div>
           )}
         </div>

@@ -6,7 +6,6 @@ import {
   type BookingFormState,
 } from "./actions";
 import {
-  EVENT_TYPES,
   DOMESTIC_CITIES,
   DIASPORA_CITIES,
   BALKAN_COUNTRIES,
@@ -14,6 +13,7 @@ import {
   COMMISSION_RATE,
   formatEur,
 } from "@/lib/constants";
+import { useT } from "@/i18n/provider";
 import type { Market } from "@/lib/types";
 
 const EMPTY: BookingFormState = { ok: false };
@@ -27,6 +27,7 @@ export function BookingForm({
   artistName: string;
   priceFrom: number;
 }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState(createBookingRequest, EMPTY);
   const [market, setMarket] = useState<Market>("DOMESTIC");
 
@@ -45,29 +46,27 @@ export function BookingForm({
         <input type="hidden" name="market" value={market} />
 
         <h1 className="font-display text-xl font-bold text-ink">
-          Upit za {artistName}
+          {t.bookingForm.titlePrefix} {artistName}
         </h1>
-        <p className="mt-1 text-sm text-muted">
-          Popuni detalje događaja. Bend potvrđuje pre bilo kakve uplate.
-        </p>
+        <p className="mt-1 text-sm text-muted">{t.bookingForm.subtitle}</p>
 
         {/* Market toggle */}
         <div className="mt-5 inline-flex rounded-[12px] bg-surface-2 p-1">
           <MarketBtn active={market === "DOMESTIC"} onClick={() => setMarket("DOMESTIC")}>
-            Balkan
+            {t.markets.DOMESTIC}
           </MarketBtn>
           <MarketBtn active={market === "DIASPORA"} onClick={() => setMarket("DIASPORA")}>
-            ✈ Dijaspora
+            ✈ {t.markets.DIASPORA}
           </MarketBtn>
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="eventType">
-              Tip događaja
+              {t.bookingForm.eventType}
             </label>
-            <select id="eventType" name="eventType" className="input" defaultValue="Svadba">
-              {EVENT_TYPES.map((e) => (
+            <select id="eventType" name="eventType" className="input" defaultValue={t.eventTypes[0]}>
+              {t.eventTypes.map((e) => (
                 <option key={e} value={e}>
                   {e}
                 </option>
@@ -76,20 +75,24 @@ export function BookingForm({
           </div>
           <div>
             <label className="label" htmlFor="date">
-              Datum
+              {t.bookingForm.date}
             </label>
             <input id="date" name="date" type="date" className="input" />
           </div>
           <div>
             <label className="label" htmlFor="city">
-              Grad
+              {t.bookingForm.city}
             </label>
             <input
               id="city"
               name="city"
               className="input"
               list="city-list"
-              placeholder={market === "DIASPORA" ? "npr. Beč" : "npr. Beograd"}
+              placeholder={
+                market === "DIASPORA"
+                  ? t.bookingForm.cityPlaceholderDiaspora
+                  : t.bookingForm.cityPlaceholderDomestic
+              }
             />
             <datalist id="city-list">
               {cities.map((c) => (
@@ -99,11 +102,11 @@ export function BookingForm({
           </div>
           <div>
             <label className="label" htmlFor="country">
-              Država
+              {t.bookingForm.country}
             </label>
             <select key={market} id="country" name="country" className="input" defaultValue="">
               <option value="" disabled>
-                Izaberi državu
+                {t.bookingForm.chooseCountry}
               </option>
               {countries.map((c) => (
                 <option key={c} value={c}>
@@ -114,57 +117,65 @@ export function BookingForm({
           </div>
           <div>
             <label className="label" htmlFor="guests">
-              Broj gostiju
+              {t.bookingForm.guests}
             </label>
-            <input id="guests" name="guests" type="number" min={0} className="input" placeholder="npr. 150" />
+            <input
+              id="guests"
+              name="guests"
+              type="number"
+              min={0}
+              className="input"
+              placeholder={t.bookingForm.guestsPlaceholder}
+            />
           </div>
         </div>
 
         <div className="mt-4">
           <label className="label" htmlFor="message">
-            Poruka bendu
+            {t.bookingForm.message}
           </label>
           <textarea
             id="message"
             name="message"
             rows={3}
             className="input"
-            placeholder="Kratko o događaju, željeni repertoar, trajanje…"
+            placeholder={t.bookingForm.messagePlaceholder}
           />
         </div>
 
         {state.error && <p className="mt-3 text-sm text-coral">{state.error}</p>}
 
         <button type="submit" className="btn-primary mt-5 w-full py-3 text-base" disabled={pending}>
-          {pending ? "Šaljem upit…" : "Pošalji upit"}
+          {pending ? t.bookingForm.submitting : t.bookingForm.submit}
         </button>
       </form>
 
       {/* Sidebar: fee breakdown + escrow explainer */}
       <aside className="space-y-4">
         <div className="card p-6">
-          <h2 className="font-display text-base font-bold text-ink">Procena troška</h2>
+          <h2 className="font-display text-base font-bold text-ink">{t.bookingForm.costEstimate}</h2>
           <dl className="mt-3 space-y-2 text-sm">
-            <Row label="Honorar izvođaču" value={formatEur(priceFrom)} />
-            {logisticsFee > 0 && <Row label="Logistika (dijaspora)" value={formatEur(logisticsFee)} />}
-            <Row label={`Provizija (${Math.round(COMMISSION_RATE * 100)}%)`} value={formatEur(commission)} />
+            <Row label={t.bookingForm.feeArtist} value={formatEur(priceFrom)} />
+            {logisticsFee > 0 && <Row label={t.bookingForm.logistics} value={formatEur(logisticsFee)} />}
+            <Row
+              label={`${t.bookingForm.commission} (${Math.round(COMMISSION_RATE * 100)}%)`}
+              value={formatEur(commission)}
+            />
             <div className="my-2 h-px bg-line" />
-            <Row label="Ukupno" value={formatEur(feeTotal)} strong />
+            <Row label={t.bookingForm.total} value={formatEur(feeTotal)} strong />
           </dl>
-          <p className="mt-3 text-xs text-muted">
-            Iznos je procena; konačan honorar potvrđuje bend.
-          </p>
+          <p className="mt-3 text-xs text-muted">{t.bookingForm.estimateNote}</p>
         </div>
 
         <div className="card border-green/30 bg-green-soft p-5">
           <div className="flex items-center gap-2 font-semibold text-green">
-            <span>🛡️</span> Zaštita plaćanja
+            <span>🛡️</span> {t.bookingForm.protectionTitle}
           </div>
           <ol className="mt-3 space-y-2 text-sm text-ink-soft">
-            <li>1. Pošalji upit — bez uplate.</li>
-            <li>2. Bend potvrđuje termin.</li>
-            <li>3. Uplaćuješ kaparu u escrow.</li>
-            <li>4. Svirka → novac se pušta bendu.</li>
+            <li>{t.bookingForm.protectionStep1}</li>
+            <li>{t.bookingForm.protectionStep2}</li>
+            <li>{t.bookingForm.protectionStep3}</li>
+            <li>{t.bookingForm.protectionStep4}</li>
           </ol>
         </div>
       </aside>

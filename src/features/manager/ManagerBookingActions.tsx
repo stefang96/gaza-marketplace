@@ -10,6 +10,7 @@ import {
   markSeen,
   type ActionResult,
 } from "./actions";
+import { useT } from "@/i18n/provider";
 import type { BookingStatus, EscrowState } from "@/lib/types";
 
 // Marks a NEW request as seen (-> PENDING_CONFIRM) when the manager opens it.
@@ -39,6 +40,7 @@ export function ManagerBookingActions({
   status: BookingStatus;
   escrowState: EscrowState;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +65,7 @@ export function ManagerBookingActions({
   }
 
   if (!isActive && !canComplete) {
-    return (
-      <p className="text-sm text-muted">Upit je zatvoren — nema dostupnih akcija.</p>
-    );
+    return <p className="text-sm text-muted">{t.managerActions.closedNoActions}</p>;
   }
 
   return (
@@ -76,7 +76,7 @@ export function ManagerBookingActions({
           disabled={pending}
           className="btn w-full bg-green py-3 text-white hover:brightness-95"
         >
-          {pending ? "Obrađujem…" : "Prihvati upit"}
+          {pending ? t.common.processing : t.managerActions.accept}
         </button>
       )}
 
@@ -86,7 +86,7 @@ export function ManagerBookingActions({
           disabled={pending}
           className="btn w-full bg-green py-3 text-white hover:brightness-95"
         >
-          Potvrdi nastup — pusti isplatu
+          {t.managerActions.confirmPerformed}
         </button>
       )}
 
@@ -98,7 +98,7 @@ export function ManagerBookingActions({
               disabled={pending}
               className="btn-secondary w-full"
             >
-              Predloži izmenu
+              {t.managerActions.propose}
             </button>
           ) : (
             <div className="rounded-[12px] border border-line-2 p-3">
@@ -107,7 +107,7 @@ export function ManagerBookingActions({
                 onChange={(e) => setNote(e.target.value)}
                 rows={3}
                 className="input"
-                placeholder="npr. Predlažemo drugi termin ili viši honorar zbog udaljenosti…"
+                placeholder={t.managerActions.proposePlaceholder}
               />
               <div className="mt-2 flex gap-2">
                 <button
@@ -115,14 +115,14 @@ export function ManagerBookingActions({
                   disabled={pending || !note.trim()}
                   className="btn-primary flex-1"
                 >
-                  Pošalji predlog
+                  {t.managerActions.proposeSend}
                 </button>
                 <button
                   onClick={() => setShowPropose(false)}
                   className="btn-ghost"
                   disabled={pending}
                 >
-                  Otkaži
+                  {t.common.cancel}
                 </button>
               </div>
             </div>
@@ -133,7 +133,7 @@ export function ManagerBookingActions({
             disabled={pending}
             className="btn-danger w-full"
           >
-            Odbij upit
+            {t.managerActions.decline}
           </button>
         </>
       )}

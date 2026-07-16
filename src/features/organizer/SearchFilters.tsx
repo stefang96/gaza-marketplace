@@ -2,12 +2,16 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
-import { GENRE_OPTIONS, DOMESTIC_CITIES, DIASPORA_CITIES } from "@/lib/constants";
+import { DOMESTIC_CITIES, DIASPORA_CITIES } from "@/lib/constants";
+import { useT } from "@/i18n/provider";
+import type { Genre } from "@/lib/types";
 
 const CITIES = [...DOMESTIC_CITIES, ...DIASPORA_CITIES];
+const GENRE_KEYS: Genre[] = ["NAROD", "TRUBACI", "COVER", "DJ", "POPFOLK", "TAMBURASI"];
 
 // Live filters: change a control -> update the URL query -> server re-queries.
 export function SearchFilters() {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -32,17 +36,17 @@ export function SearchFilters() {
       {/* Event-type toggle: privatna proslava / lokal-klub */}
       <div className="mb-4 inline-flex rounded-[12px] bg-surface-2 p-1">
         <ToggleBtn active={tip === "privatno"} onClick={() => setParam("tip", "privatno")}>
-          Privatna proslava
+          {t.search.typePrivate}
         </ToggleBtn>
         <ToggleBtn active={tip === "klub"} onClick={() => setParam("tip", "klub")}>
-          Lokal · klub
+          {t.search.typeClub}
         </ToggleBtn>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label className="label" htmlFor="zanr">
-            Žanr
+            {t.search.genre}
           </label>
           <select
             id="zanr"
@@ -50,10 +54,10 @@ export function SearchFilters() {
             value={genre}
             onChange={(e) => setParam("zanr", e.target.value)}
           >
-            <option value="">Svi žanrovi</option>
-            {GENRE_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
+            <option value="">{t.search.allGenres}</option>
+            {GENRE_KEYS.map((g) => (
+              <option key={g} value={g}>
+                {t.genres[g]}
               </option>
             ))}
           </select>
@@ -61,7 +65,7 @@ export function SearchFilters() {
 
         <div>
           <label className="label" htmlFor="grad">
-            Grad
+            {t.search.city}
           </label>
           <select
             id="grad"
@@ -69,7 +73,7 @@ export function SearchFilters() {
             value={city}
             onChange={(e) => setParam("grad", e.target.value)}
           >
-            <option value="">Svi gradovi</option>
+            <option value="">{t.search.allCities}</option>
             {CITIES.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -80,7 +84,7 @@ export function SearchFilters() {
 
         <div>
           <label className="label" htmlFor="datum">
-            Datum
+            {t.search.date}
           </label>
           <input
             id="datum"
@@ -93,7 +97,7 @@ export function SearchFilters() {
 
         <div>
           <label className="label" htmlFor="budzet">
-            Budžet do (€)
+            {t.search.budget}
           </label>
           <input
             id="budzet"
@@ -101,7 +105,7 @@ export function SearchFilters() {
             min={0}
             step={100}
             className="input"
-            placeholder="npr. 1500"
+            placeholder={t.search.budgetPlaceholder}
             defaultValue={budget}
             onChange={(e) => setParam("budzet", e.target.value)}
           />

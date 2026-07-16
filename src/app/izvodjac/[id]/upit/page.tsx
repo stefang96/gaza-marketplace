@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getArtistById } from "@/lib/db/queries";
 import { getSessionUser } from "@/lib/auth";
+import { getT } from "@/i18n/server";
 import { BookingForm } from "@/features/organizer/BookingForm";
 
 export const metadata = { title: "Novi upit · Gaža" };
@@ -17,13 +18,13 @@ export default async function BookingRequestPage({
   if (!user) redirect(`/prijava?next=/izvodjac/${id}/upit`);
   if (user.role !== "ORGANIZER") redirect("/panel");
 
-  const data = await getArtistById(id);
+  const [data, { t }] = await Promise.all([getArtistById(id), getT()]);
   if (!data) notFound();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <Link href={`/izvodjac/${id}`} className="text-sm text-muted hover:text-ink">
-        ← Nazad na profil
+        ← {t.bookingForm.backToProfile}
       </Link>
       <div className="mt-4">
         <BookingForm

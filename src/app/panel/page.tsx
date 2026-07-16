@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getArtistsByManager, getManagerInbox } from "@/lib/db/queries";
+import { getT } from "@/i18n/server";
 import { Avatar } from "@/components/ui/Avatar";
 import { StatusChip, MarketChip } from "@/components/ui/StatusChip";
-import { formatEur, formatDate, GENRE_LABELS } from "@/lib/constants";
+import { formatEur, formatDate } from "@/lib/constants";
 import { avatarColorFor } from "@/features/auth/avatarColor";
 import { InboxFilters } from "@/features/manager/InboxFilters";
 import type { BookingStatus, Market } from "@/lib/types";
@@ -23,9 +24,10 @@ export default async function PanelPage({
   if (!user) redirect("/prijava?next=/panel");
   if (user.role === "ORGANIZER") redirect("/pretraga");
 
-  const [artists, inbox] = await Promise.all([
+  const [artists, inbox, { t }] = await Promise.all([
     getArtistsByManager(user.id),
     getManagerInbox(user.id),
+    getT(),
   ]);
 
   // KPIs (from full inbox, independent of filters).
@@ -55,29 +57,29 @@ export default async function PanelPage({
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold text-ink">Menadžerski panel</h1>
+          <h1 className="font-display text-3xl font-bold text-ink">{t.panel.title}</h1>
           <p className="mt-1 text-muted">
-            {user.name} · {artists.length} izvođača u rosteru
+            {user.name} · {artists.length} {t.panel.rosterOf}
           </p>
         </div>
         <Link href="/panel/izvodjaci" className="btn-secondary">
-          Upravljaj rosterom
+          {t.panel.manageRoster}
         </Link>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi label="Otvoreni upiti" value={openCount} tone="blue" />
-        <Kpi label="Potvrđeni" value={confirmedCount} tone="green" />
-        <Kpi label="U escrow-u" value={escrowCount} tone="amber" />
-        <Kpi label="Zarada (završeno)" value={formatEur(completedRevenue)} tone="ink" />
+        <Kpi label={t.panel.kpiOpen} value={openCount} tone="blue" />
+        <Kpi label={t.panel.kpiConfirmed} value={confirmedCount} tone="green" />
+        <Kpi label={t.panel.kpiEscrow} value={escrowCount} tone="amber" />
+        <Kpi label={t.panel.kpiRevenue} value={formatEur(completedRevenue)} tone="ink" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[280px_1fr]">
         {/* Roster */}
         <aside className="space-y-3">
           <h2 className="font-display text-sm font-bold uppercase tracking-wide text-muted">
-            Roster
+            {t.panel.roster}
           </h2>
           {artists.map((a) => {
             const open = openByArtist.get(a.id) ?? 0;
@@ -90,7 +92,7 @@ export default async function PanelPage({
                 <Avatar name={a.name} color={avatarColorFor(a.name)} size="md" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold text-ink">{a.name}</div>
-                  <div className="text-xs text-muted">{GENRE_LABELS[a.genre]}</div>
+                  <div className="text-xs text-muted">{t.genres[a.genre]}</div>
                 </div>
                 {open > 0 && (
                   <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-blue px-1.5 text-xs font-bold text-white">
@@ -105,16 +107,14 @@ export default async function PanelPage({
         {/* Unified inbox */}
         <section>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Inbox — svi upiti
-            </h2>
+            <h2 className="font-display text-lg font-bold text-ink">{t.panel.inboxTitle}</h2>
             <InboxFilters />
           </div>
 
           {filtered.length === 0 ? (
             <div className="card p-10 text-center">
               <div className="mb-2 text-3xl">📭</div>
-              <p className="text-sm text-muted">Nema upita za izabrane filtere.</p>
+              <p className="text-sm text-muted">{t.panel.inboxEmpty}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -142,7 +142,8 @@ export default async function PanelPage({
                         {b.eventType} · {b.city}, {b.country} · {formatDate(b.date)}
                       </div>
                       <div className="text-xs text-muted">
-                        Naručilac: {b.organizer?.name ?? "—"} · {b.guests} gostiju
+                        {t.panel.organizerLabel}: {b.organizer?.name ?? "—"} · {b.guests}{" "}
+                        {t.panel.guestsShort}
                       </div>
                     </div>
                     <div className="hidden text-right sm:block">

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
+import { getT } from "@/i18n/server";
 import { computeFees } from "@/lib/pricing";
 import { getPaymentProvider } from "@/lib/payments";
 import type { Market } from "@/lib/types";
@@ -19,8 +20,9 @@ export async function createBookingRequest(
   formData: FormData,
 ): Promise<BookingFormState> {
   const user = await getSessionUser();
+  const { t } = await getT();
   if (!user || user.role !== "ORGANIZER") {
-    return { ok: false, error: "Samo naručilac može da pošalje upit." };
+    return { ok: false, error: t.bookingForm.errOnlyOrganizer };
   }
 
   const artistId = String(formData.get("artistId") ?? "");
@@ -33,7 +35,7 @@ export async function createBookingRequest(
   const message = String(formData.get("message") ?? "").trim();
 
   if (!artistId || !eventType || !city || !country || !date) {
-    return { ok: false, error: "Popuni tip događaja, grad, državu i datum." };
+    return { ok: false, error: t.bookingForm.errRequired };
   }
 
   const supabase = await createClient();
@@ -45,7 +47,7 @@ export async function createBookingRequest(
     .eq("id", artistId)
     .maybeSingle();
   if (artistErr || !artistRow) {
-    return { ok: false, error: "Izvođač nije pronađen." };
+    return { ok: false, error: t.bookingForm.errArtist };
   }
 
   const fees = computeFees(artistRow.price_from, market);
@@ -80,8 +82,9 @@ export async function createBookingRequest(
 
 async function loadOwnBooking(bookingId: string) {
   const user = await getSessionUser();
+  const { t } = await getT();
   if (!user || user.role !== "ORGANIZER") {
-    return { error: "Nedozvoljeno." as string, supabase: null, booking: null, user: null };
+    return { error: t.errors.notAllowed as string, supabase: null, booking: null, user: null };
   }
   const supabase = await createClient();
   const { data: booking } = await supabase
@@ -90,17 +93,18 @@ async function loadOwnBooking(bookingId: string) {
     .eq("id", bookingId)
     .eq("organizer_user_id", user.id)
     .maybeSingle();
-  if (!booking) return { error: "Upit nije pronađen.", supabase: null, booking: null, user: null };
+  if (!booking) return { error: t.errors.notFound, supabase: null, booking: null, user: null };
   return { error: null, supabase, booking, user };
 }
 
 // Simulated escrow deposit: CONFIRMED + NONE -> escrow DEPOSIT_HELD.
 export async function payDeposit(bookingId: string): Promise<BookingFormState> {
   const { error, supabase, booking } = await loadOwnBooking(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  const { t } = await getT();
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
 
   if (booking.status !== "CONFIRMED" || booking.escrow_state !== "NONE") {
-    return { ok: false, error: "Uplata je moguća tek kad bend potvrdi upit." };
+    return { ok: false, error: t.bookingDetail.errPayAfterConfirm };
   }
 
   const pay = getPaymentProvider(supabase);
@@ -115,10 +119,11 @@ export async function payDeposit(bookingId: string): Promise<BookingFormState> {
 // After the gig: DEPOSIT_HELD -> status COMPLETED + escrow RELEASED.
 export async function confirmPerformed(bookingId: string): Promise<BookingFormState> {
   const { error, supabase, booking } = await loadOwnBooking(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  const { t } = await getT();
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
 
   if (booking.escrow_state !== "DEPOSIT_HELD") {
-    return { ok: false, error: "Nema kapare u escrow-u za isplatu." };
+    return { ok: false, error: t.bookingDetail.errNoEscrow };
   }
 
   const { error: updErr } = await supabase
@@ -138,10 +143,11 @@ export async function confirmPerformed(bookingId: string): Promise<BookingFormSt
 // Cancel before the gig: -> CANCELLED, refund if a deposit was held.
 export async function cancelBooking(bookingId: string): Promise<BookingFormState> {
   const { error, supabase, booking } = await loadOwnBooking(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  const { t } = await getT();
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
 
   if (["COMPLETED", "CANCELLED", "DECLINED"].includes(booking.status)) {
-    return { ok: false, error: "Ovaj upit se ne može otkazati." };
+    return { ok: false, error: t.bookingDetail.errCannotCancel };
   }
 
   const { error: updErr } = await supabase

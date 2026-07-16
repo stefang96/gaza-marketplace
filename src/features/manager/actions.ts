@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
+import { getT } from "@/i18n/server";
 import { getPaymentProvider } from "@/lib/payments";
 
 export interface ActionResult {
@@ -13,8 +14,9 @@ export interface ActionResult {
 // Loads a booking the current manager/artist controls (RLS gates visibility).
 async function loadControlled(bookingId: string) {
   const user = await getSessionUser();
+  const { t } = await getT();
   if (!user || user.role === "ORGANIZER") {
-    return { error: "Nedozvoljeno." as string, supabase: null, booking: null };
+    return { error: t.errors.notAllowed as string, supabase: null, booking: null };
   }
   const supabase = await createClient();
   const { data: booking } = await supabase
@@ -22,7 +24,7 @@ async function loadControlled(bookingId: string) {
     .select("*")
     .eq("id", bookingId)
     .maybeSingle();
-  if (!booking) return { error: "Upit nije pronađen.", supabase: null, booking: null };
+  if (!booking) return { error: t.errors.notFound, supabase: null, booking: null };
   return { error: null, supabase, booking };
 }
 
@@ -37,7 +39,7 @@ function revalidate(bookingId: string) {
 // Opening a NEW request marks it as seen -> PENDING_CONFIRM (spec §6).
 export async function markSeen(bookingId: string): Promise<ActionResult> {
   const { error, supabase, booking } = await loadControlled(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  if (error || !supabase) return { ok: false, error: error ?? "" };
   if (booking.status !== "NEW") return { ok: true };
 
   const { error: updErr } = await supabase
@@ -52,9 +54,10 @@ export async function markSeen(bookingId: string): Promise<ActionResult> {
 // Accept on behalf of the artist -> CONFIRMED. Organizer can then pay the deposit.
 export async function acceptRequest(bookingId: string): Promise<ActionResult> {
   const { error, supabase, booking } = await loadControlled(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  const { t } = await getT();
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
   if (!["NEW", "PENDING_CONFIRM"].includes(booking.status)) {
-    return { ok: false, error: "Upit se ne može prihvatiti u ovom statusu." };
+    return { ok: false, error: t.managerActions.errCannotAccept };
   }
   const { error: updErr } = await supabase
     .from("booking_requests")
@@ -68,9 +71,10 @@ export async function acceptRequest(bookingId: string): Promise<ActionResult> {
 // Decline -> DECLINED (+ refund if a deposit was somehow already held).
 export async function declineRequest(bookingId: string): Promise<ActionResult> {
   const { error, supabase, booking } = await loadControlled(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  const { t } = await getT();
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
   if (["COMPLETED", "CANCELLED", "DECLINED"].includes(booking.status)) {
-    return { ok: false, error: "Upit se ne može odbiti u ovom statusu." };
+    return { ok: false, error: t.managerActions.errCannotDecline };
   }
   const { error: updErr } = await supabase
     .from("booking_requests")
@@ -90,13 +94,14 @@ export async function proposeChange(
   bookingId: string,
   note: string,
 ): Promise<ActionResult> {
+  const { t } = await getT();
   const trimmed = note.trim();
-  if (!trimmed) return { ok: false, error: "Napiši predlog izmene." };
+  if (!trimmed) return { ok: false, error: t.managerActions.errProposeEmpty };
 
   const { error, supabase, booking } = await loadControlled(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
   if (["COMPLETED", "CANCELLED", "DECLINED"].includes(booking.status)) {
-    return { ok: false, error: "Upit više nije aktivan." };
+    return { ok: false, error: t.managerActions.errNotActive };
   }
 
   const appended =
@@ -115,9 +120,10 @@ export async function proposeChange(
 // Manager may also confirm the gig happened -> COMPLETED + RELEASED.
 export async function confirmPerformedByManager(bookingId: string): Promise<ActionResult> {
   const { error, supabase, booking } = await loadControlled(bookingId);
-  if (error || !supabase) return { ok: false, error: error ?? "Greška." };
+  const { t } = await getT();
+  if (error || !supabase) return { ok: false, error: error ?? t.errors.generic };
   if (booking.escrow_state !== "DEPOSIT_HELD") {
-    return { ok: false, error: "Nema kapare u escrow-u." };
+    return { ok: false, error: t.managerActions.errNoEscrow };
   }
   const { error: updErr } = await supabase
     .from("booking_requests")

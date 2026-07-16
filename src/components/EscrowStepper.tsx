@@ -1,4 +1,7 @@
+"use client";
+
 import { escrowSteps } from "@/lib/booking";
+import { useT } from "@/i18n/provider";
 import type { BookingStatus, EscrowState } from "@/lib/types";
 
 // The escrow stepper is one of the two most important visual elements (spec §8).
@@ -11,7 +14,9 @@ export function EscrowStepper({
   escrowState: EscrowState;
   orientation?: "horizontal" | "vertical";
 }) {
+  const t = useT();
   const steps = escrowSteps({ status, escrowState });
+  const label = (key: "deposit" | "performance" | "payout") => t.escrowStepper[key];
 
   if (orientation === "vertical") {
     return (
@@ -25,7 +30,7 @@ export function EscrowStepper({
                   s.state === "todo" ? "text-muted" : "text-ink"
                 }`}
               >
-                {s.label}
+                {label(s.key)}
               </div>
               <StateLabel state={s.state} />
             </div>
@@ -46,7 +51,7 @@ export function EscrowStepper({
                 s.state === "todo" ? "text-muted" : "text-ink"
               }`}
             >
-              {s.label}
+              {label(s.key)}
             </span>
           </div>
           {i < steps.length - 1 && (
@@ -80,13 +85,13 @@ function Dot({ state }: { state: "done" | "active" | "todo" | "cancelled" }) {
   );
 }
 
-function StateLabel({ state }: { state: string }) {
-  const map: Record<string, { text: string; cls: string }> = {
-    done: { text: "Završeno", cls: "text-green" },
-    active: { text: "U toku", cls: "text-accent" },
-    todo: { text: "Čeka", cls: "text-muted" },
-    cancelled: { text: "Otkazano", cls: "text-muted" },
-  };
-  const m = map[state];
-  return <div className={`text-xs ${m.cls}`}>{m.text}</div>;
+function StateLabel({ state }: { state: "done" | "active" | "todo" | "cancelled" }) {
+  const t = useT();
+  const cls = {
+    done: "text-green",
+    active: "text-accent",
+    todo: "text-muted",
+    cancelled: "text-muted",
+  }[state];
+  return <div className={`text-xs ${cls}`}>{t.escrowStepper[state]}</div>;
 }

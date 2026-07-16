@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { startGoogleAuth } from "./actions";
+import { useT } from "@/i18n/provider";
 import type { UserRole } from "@/lib/types";
 
 export function GoogleButton({ role }: { role: UserRole }) {
+  const t = useT();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +17,7 @@ export function GoogleButton({ role }: { role: UserRole }) {
     if (res.url) {
       window.location.href = res.url;
     } else {
-      setError(res.error ?? "Google prijava nije podešena (vidi README).");
+      setError(res.error ?? t.auth.googleNotConfigured);
       setLoading(false);
     }
   }
@@ -46,7 +48,7 @@ export function GoogleButton({ role }: { role: UserRole }) {
             d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 002.18 6.94l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75z"
           />
         </svg>
-        Nastavi preko Google-a
+        {t.auth.google}
       </button>
       {error && <p className="mt-2 text-xs text-coral">{error}</p>}
     </div>

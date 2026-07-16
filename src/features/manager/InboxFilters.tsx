@@ -2,12 +2,20 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
-import { STATUS_LABELS } from "@/lib/constants";
+import { useT } from "@/i18n/provider";
 import type { BookingStatus } from "@/lib/types";
 
-const STATUSES = Object.keys(STATUS_LABELS) as BookingStatus[];
+const STATUSES: BookingStatus[] = [
+  "NEW",
+  "PENDING_CONFIRM",
+  "CONFIRMED",
+  "DECLINED",
+  "COMPLETED",
+  "CANCELLED",
+];
 
 export function InboxFilters() {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -29,13 +37,13 @@ export function InboxFilters() {
     <div className="flex flex-wrap items-center gap-2">
       <div className="inline-flex rounded-[12px] bg-surface-2 p-1">
         <FilterBtn active={market === ""} onClick={() => setParam("trziste", "")}>
-          Sve
+          {t.panel.filterAll}
         </FilterBtn>
         <FilterBtn active={market === "DOMESTIC"} onClick={() => setParam("trziste", "DOMESTIC")}>
-          Balkan
+          {t.markets.DOMESTIC}
         </FilterBtn>
         <FilterBtn active={market === "DIASPORA"} onClick={() => setParam("trziste", "DIASPORA")}>
-          ✈ Dijaspora
+          ✈ {t.markets.DIASPORA}
         </FilterBtn>
       </div>
 
@@ -44,10 +52,10 @@ export function InboxFilters() {
         value={status}
         onChange={(e) => setParam("status", e.target.value)}
       >
-        <option value="">Svi statusi</option>
+        <option value="">{t.panel.filterAllStatuses}</option>
         {STATUSES.map((s) => (
           <option key={s} value={s}>
-            {STATUS_LABELS[s]}
+            {t.statuses[s]}
           </option>
         ))}
       </select>

@@ -2,13 +2,15 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getBookingById } from "@/lib/db/queries";
+import { getT } from "@/i18n/server";
 import { Avatar } from "@/components/ui/Avatar";
 import { StatusChip, MarketChip } from "@/components/ui/StatusChip";
 import { EscrowStepper } from "@/components/EscrowStepper";
 import { BookingActions } from "@/features/organizer/BookingActions";
-import { formatEur, formatDate, ESCROW_LABELS } from "@/lib/constants";
+import { formatEur, formatDate } from "@/lib/constants";
 import { avatarColorFor } from "@/features/auth/avatarColor";
 import type { BookingWithArtist } from "@/lib/types";
+import type { Dictionary } from "@/i18n/dictionaries";
 
 export const metadata = { title: "Detalj upita · Gaža" };
 
@@ -26,21 +28,20 @@ export default async function BookingDetailPage({
   const user = await getSessionUser();
   if (!user) redirect(`/prijava?next=/moji-upiti/${id}`);
 
-  const booking = await getBookingById(id);
+  const [booking, { t }] = await Promise.all([getBookingById(id), getT()]);
   if (!booking || booking.organizerUserId !== user.id) notFound();
+  const d = t.bookingDetail;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <Link href="/moji-upiti" className="text-sm text-muted hover:text-ink">
-        ← Nazad na upite
+        ← {d.backToBookings}
       </Link>
 
       {isNew && (
         <div className="mt-4 rounded-card border border-blue/30 bg-[rgba(59,98,214,0.06)] p-4">
-          <div className="font-semibold text-blue">Upit poslat! 🎉</div>
-          <p className="mt-1 text-sm text-ink-soft">
-            Bend će pregledati i potvrditi termin. Uplata ide tek posle potvrde.
-          </p>
+          <div className="font-semibold text-blue">{d.sentTitle}</div>
+          <p className="mt-1 text-sm text-ink-soft">{d.sentBody}</p>
         </div>
       )}
 
@@ -66,20 +67,17 @@ export default async function BookingDetailPage({
             </div>
 
             <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
-              <Field label="Tip događaja" value={booking.eventType} />
-              <Field
-                label="Tržište"
-                value={<MarketChip market={booking.market} />}
-              />
-              <Field label="Datum" value={formatDate(booking.date)} />
-              <Field label="Gosti" value={`${booking.guests}`} />
-              <Field label="Grad" value={`${booking.city}, ${booking.country}`} />
-              <Field label="Poslato" value={formatDate(booking.createdAt)} />
+              <Field label={d.eventType} value={booking.eventType} />
+              <Field label={d.market} value={<MarketChip market={booking.market} />} />
+              <Field label={d.date} value={formatDate(booking.date)} />
+              <Field label={d.guests} value={`${booking.guests}`} />
+              <Field label={d.city} value={`${booking.city}, ${booking.country}`} />
+              <Field label={d.sent} value={formatDate(booking.createdAt)} />
             </dl>
 
             {booking.message && (
-              <div className="mt-4 rounded-[12px] bg-surface-2 p-3">
-                <div className="text-xs font-medium text-muted">Poruka bendu</div>
+              <div className="mt-4 whitespace-pre-line rounded-[12px] bg-surface-2 p-3">
+                <div className="text-xs font-medium text-muted">{d.messageToBand}</div>
                 <p className="mt-1 text-sm text-ink-soft">{booking.message}</p>
               </div>
             )}
@@ -87,27 +85,27 @@ export default async function BookingDetailPage({
 
           {/* Fee breakdown */}
           <div className="card p-6">
-            <h2 className="font-display text-lg font-bold text-ink">Honorar</h2>
+            <h2 className="font-display text-lg font-bold text-ink">{d.fee}</h2>
             <dl className="mt-3 space-y-2 text-sm">
-              <Row label="Izvođaču" value={formatEur(booking.feeArtist)} />
+              <Row label={d.feeArtist} value={formatEur(booking.feeArtist)} />
               {booking.logisticsFee > 0 && (
-                <Row label="Logistika" value={formatEur(booking.logisticsFee)} />
+                <Row label={d.logistics} value={formatEur(booking.logisticsFee)} />
               )}
-              <Row label="Provizija (15%)" value={formatEur(booking.commission)} />
+              <Row label={d.commission} value={formatEur(booking.commission)} />
               <div className="my-1 h-px bg-line" />
-              <Row label="Ukupno" value={formatEur(booking.feeTotal)} strong />
+              <Row label={d.total} value={formatEur(booking.feeTotal)} strong />
             </dl>
           </div>
 
           {/* Logistics */}
-          <LogisticsSection booking={booking} />
+          <LogisticsSection booking={booking} t={t} />
         </div>
 
         {/* Right: escrow + actions */}
         <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           <div className="card p-6">
-            <h2 className="font-display text-base font-bold text-ink">Zaštita plaćanja</h2>
-            <p className="mt-1 text-xs text-muted">{ESCROW_LABELS[booking.escrowState]}</p>
+            <h2 className="font-display text-base font-bold text-ink">{d.protectionTitle}</h2>
+            <p className="mt-1 text-xs text-muted">{t.escrow[booking.escrowState]}</p>
             <div className="mt-4">
               <EscrowStepper
                 status={booking.status}
@@ -132,24 +130,23 @@ export default async function BookingDetailPage({
   );
 }
 
-function LogisticsSection({ booking }: { booking: BookingWithArtist }) {
+function LogisticsSection({ booking, t }: { booking: BookingWithArtist; t: Dictionary }) {
+  const d = t.bookingDetail;
   const isDiaspora = booking.market === "DIASPORA";
   return (
     <div className="card p-6">
       <div className="flex items-center gap-2">
-        <h2 className="font-display text-lg font-bold text-ink">Logistika</h2>
-        {isDiaspora && <span className="chip chip-diaspora">Na nama</span>}
+        <h2 className="font-display text-lg font-bold text-ink">{d.logisticsTitle}</h2>
+        {isDiaspora && <span className="chip chip-diaspora">{d.logisticsOnUs}</span>}
       </div>
       {isDiaspora ? (
         <ul className="mt-3 space-y-2 text-sm">
-          <LogiItem icon="🚐" label="Prevoz" value={booking.logisticsTransport} />
-          <LogiItem icon="🏨" label="Smeštaj" value={booking.logisticsStay} />
-          <LogiItem icon="📄" label="Papiri / prijava rada" value={booking.logisticsPapers} />
+          <LogiItem icon="🚐" label={d.transport} value={booking.logisticsTransport} fallback={d.toBeDefined} />
+          <LogiItem icon="🏨" label={d.stay} value={booking.logisticsStay} fallback={d.toBeDefined} />
+          <LogiItem icon="📄" label={d.papers} value={booking.logisticsPapers} fallback={d.toBeDefined} />
         </ul>
       ) : (
-        <p className="mt-2 text-sm text-muted">
-          Nastup u zemlji — logistika nije potrebna.
-        </p>
+        <p className="mt-2 text-sm text-muted">{d.noLogisticsDomestic}</p>
       )}
     </div>
   );
@@ -159,17 +156,19 @@ function LogiItem({
   icon,
   label,
   value,
+  fallback,
 }: {
   icon: string;
   label: string;
   value: string | null;
+  fallback: string;
 }) {
   return (
     <li className="flex items-start gap-2">
       <span>{icon}</span>
       <div>
         <span className="font-medium text-ink">{label}: </span>
-        <span className="text-ink-soft">{value ?? "biće definisano"}</span>
+        <span className="text-ink-soft">{value ?? fallback}</span>
       </div>
     </li>
   );

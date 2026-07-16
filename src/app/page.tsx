@@ -1,43 +1,47 @@
 import Link from "next/link";
+import { getT } from "@/i18n/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { t } = await getT();
   return (
     <div>
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 pb-8 pt-14 sm:px-6 sm:pt-20">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
-            <span className="chip chip-diaspora mb-5">
-              Balkan i dijaspora · EUR
-            </span>
+            <span className="chip chip-diaspora mb-5">{t.home.badge}</span>
             <h1 className="font-display text-4xl font-bold leading-[1.05] text-ink sm:text-6xl">
-              Svirke bez brige.
+              {t.home.titleLine1}
               <br />
-              Novac{" "}
-              <span className="text-accent">osiguran</span>.
+              {t.home.titleMoney} <span className="text-accent">{t.home.titleSecured}</span>.
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-ink-soft">
-              Gaža povezuje muzičare i bendove sa naručiocima — za klub, kafanu,
-              splav, svadbu i slavu, u zemlji i u dijaspori. Uplata stoji u
-              escrow-u dok se ne odsvira, a logistiku za inostranstvo sređujemo mi.
-            </p>
+            <p className="mt-5 max-w-lg text-lg text-ink-soft">{t.home.subtitle}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/za-organizatore" className="btn-primary px-5 py-3 text-base">
-                Tražim bend
+                {t.home.ctaFindBand}
               </Link>
               <Link href="/za-izvodjace" className="btn-secondary px-5 py-3 text-base">
-                Ja sviram
+                {t.home.ctaIPlay}
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
-              <Trust label="Zaštita plaćanja (escrow)" />
-              <Trust label="Logistika za dijasporu" />
-              <Trust label="Verifikovani izvođači" />
+              <Trust label={t.home.trust1} />
+              <Trust label={t.home.trust2} />
+              <Trust label={t.home.trust3} />
             </div>
           </div>
 
           <div className="relative">
-            <HeroCard />
+            <HeroCard
+              escrowActive={t.home.heroEscrowActive}
+              request={t.home.heroRequest}
+              event={t.home.heroEvent}
+              meta={t.home.heroMeta}
+              step1={t.home.heroStep1}
+              step2={t.home.heroStep2}
+              step3={t.home.heroStep3}
+              feeLabel={t.home.heroFeeLabel}
+            />
           </div>
         </div>
       </section>
@@ -45,21 +49,9 @@ export default function HomePage() {
       {/* Value props */}
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid gap-5 md:grid-cols-3">
-          <ValueCard
-            title="Zaštita plaćanja"
-            body="Naručilac uplaćuje pre nastupa; novac stoji na čekanju i pušta se izvođaču tek pošto odsvira. Bez „a gde je kapara?“."
-            accent="green"
-          />
-          <ValueCard
-            title="Logistika za dijasporu"
-            body="Za gaže u inostranstvu sređujemo prevoz, smeštaj i prijavu rada. Vi svirate, papirologija je na nama."
-            accent="accent"
-          />
-          <ValueCard
-            title="Jedan inbox"
-            body="Menadžeri vode više izvođača i vide sve upite na jednom mestu — u zemlji i u dijaspori."
-            accent="blue"
-          />
+          <ValueCard title={t.home.value1Title} body={t.home.value1Body} accent="green" />
+          <ValueCard title={t.home.value2Title} body={t.home.value2Body} accent="accent" />
+          <ValueCard title={t.home.value3Title} body={t.home.value3Body} accent="blue" />
         </div>
       </section>
     </div>
@@ -84,11 +76,7 @@ function ValueCard({
   body: string;
   accent: "green" | "accent" | "blue";
 }) {
-  const dot = {
-    green: "bg-green",
-    accent: "bg-accent",
-    blue: "bg-blue",
-  }[accent];
+  const dot = { green: "bg-green", accent: "bg-accent", blue: "bg-blue" }[accent];
   return (
     <div className="card p-6">
       <span className={`mb-4 inline-block h-2.5 w-2.5 rounded-full ${dot}`} />
@@ -98,27 +86,44 @@ function ValueCard({
   );
 }
 
-function HeroCard() {
+function HeroCard({
+  escrowActive,
+  request,
+  event,
+  meta,
+  step1,
+  step2,
+  step3,
+  feeLabel,
+}: {
+  escrowActive: string;
+  request: string;
+  event: string;
+  meta: string;
+  step1: string;
+  step2: string;
+  step3: string;
+  feeLabel: string;
+}) {
   return (
     <div className="card p-6 shadow-soft-lg">
       <div className="mb-4 flex items-center justify-between">
-        <span className="chip chip-confirmed">Escrow aktivan</span>
-        <span className="text-xs text-muted">Upit #1042</span>
+        <span className="chip chip-confirmed">{escrowActive}</span>
+        <span className="text-xs text-muted">{request}</span>
       </div>
       <div className="rounded-[12px] bg-surface-2 p-4">
-        <div className="text-sm font-semibold text-ink">Svadba · Beč 🇦🇹</div>
-        <div className="text-xs text-muted">18.09.2026. · 180 gostiju</div>
+        <div className="text-sm font-semibold text-ink">{event}</div>
+        <div className="text-xs text-muted">{meta}</div>
       </div>
 
-      {/* escrow stepper preview */}
       <ol className="mt-5 space-y-3">
-        <StepPreview label="Kapara u escrow-u" state="done" />
-        <StepPreview label="Nastup" state="active" />
-        <StepPreview label="Isplata izvođaču" state="todo" />
+        <StepPreview label={step1} state="done" />
+        <StepPreview label={step2} state="active" />
+        <StepPreview label={step3} state="todo" />
       </ol>
 
       <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
-        <span className="text-sm text-ink-soft">Honorar + logistika</span>
+        <span className="text-sm text-ink-soft">{feeLabel}</span>
         <span className="font-display text-lg font-bold text-ink">2.760 €</span>
       </div>
     </div>

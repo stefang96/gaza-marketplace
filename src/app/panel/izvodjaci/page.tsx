@@ -2,10 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getArtistsByManager, getManagerInbox } from "@/lib/db/queries";
+import { getT } from "@/i18n/server";
 import { Avatar } from "@/components/ui/Avatar";
 import { Stars } from "@/components/ui/Stars";
 import { VerifiedChip } from "@/components/ui/StatusChip";
-import { GENRE_LABELS, formatEur } from "@/lib/constants";
+import { formatEur } from "@/lib/constants";
 import { avatarColorFor } from "@/features/auth/avatarColor";
 import type { BookingStatus } from "@/lib/types";
 
@@ -18,9 +19,10 @@ export default async function RosterPage() {
   if (!user) redirect("/prijava?next=/panel/izvodjaci");
   if (user.role === "ORGANIZER") redirect("/pretraga");
 
-  const [artists, inbox] = await Promise.all([
+  const [artists, inbox, { t }] = await Promise.all([
     getArtistsByManager(user.id),
     getManagerInbox(user.id),
+    getT(),
   ]);
 
   const openByArtist = new Map<string, number>();
@@ -35,18 +37,16 @@ export default async function RosterPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <Link href="/panel" className="text-sm text-muted hover:text-ink">
-            ← Nazad na panel
+            ← {t.roster.backToPanel}
           </Link>
-          <h1 className="mt-1 font-display text-3xl font-bold text-ink">Roster</h1>
-          <p className="text-muted">{artists.length} izvođača pod tvojim menadžmentom.</p>
+          <h1 className="mt-1 font-display text-3xl font-bold text-ink">{t.roster.title}</h1>
+          <p className="text-muted">
+            {artists.length} {t.roster.subtitlePrefix}
+          </p>
         </div>
         {/* M7: pravo dodavanje izvođača */}
-        <button
-          className="btn-primary opacity-60"
-          title="Stiže u M7"
-          disabled
-        >
-          + Dodaj izvođača
+        <button className="btn-primary opacity-60" title={t.roster.addArtistTooltip} disabled>
+          {t.roster.addArtist}
         </button>
       </div>
 
@@ -68,11 +68,11 @@ export default async function RosterPage() {
                 <div className="text-sm text-muted">{a.kind}</div>
                 <div className="mt-1 flex items-center gap-3">
                   <Stars value={a.ratingAvg} count={a.ratingCount} />
-                  <span className="chip chip-neutral">{GENRE_LABELS[a.genre]}</span>
+                  <span className="chip chip-neutral">{t.genres[a.genre]}</span>
                 </div>
               </div>
               <div className="hidden text-right sm:block">
-                <div className="text-xs text-muted">Cena od</div>
+                <div className="text-xs text-muted">{t.roster.priceFrom}</div>
                 <div className="font-display font-bold text-ink">{formatEur(a.priceFrom)}</div>
               </div>
               {open > 0 && (

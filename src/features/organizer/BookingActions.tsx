@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { payDeposit, confirmPerformed, cancelBooking } from "./actions";
 import { formatEur } from "@/lib/constants";
+import { useT } from "@/i18n/provider";
 import type { BookingStatus, EscrowState } from "@/lib/types";
 import { organizerActions } from "@/lib/booking";
 
@@ -20,6 +21,7 @@ export function BookingActions({
   date: string;
   feeTotal: number;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -39,11 +41,7 @@ export function BookingActions({
   }
 
   if (!canPayDeposit && !canConfirmDone && !canCancel) {
-    return (
-      <p className="text-sm text-muted">
-        Nema dostupnih akcija za trenutni status.
-      </p>
-    );
+    return <p className="text-sm text-muted">{t.bookingDetail.noActions}</p>;
   }
 
   return (
@@ -54,7 +52,9 @@ export function BookingActions({
           disabled={pending}
           className="btn-primary w-full py-3"
         >
-          {pending ? "Obrađujem…" : `Uplati kaparu u escrow · ${formatEur(feeTotal)}`}
+          {pending
+            ? t.common.processing
+            : `${t.bookingDetail.payDeposit} · ${formatEur(feeTotal)}`}
         </button>
       )}
       {canConfirmDone && (
@@ -63,7 +63,7 @@ export function BookingActions({
           disabled={pending}
           className="btn w-full bg-green py-3 text-white hover:brightness-95"
         >
-          {pending ? "Obrađujem…" : "Potvrdi da je odsvirano — pusti isplatu"}
+          {pending ? t.common.processing : t.bookingDetail.confirmPerformed}
         </button>
       )}
       {canCancel && (
@@ -72,13 +72,11 @@ export function BookingActions({
           disabled={pending}
           className="btn-danger w-full"
         >
-          Otkaži upit
+          {t.bookingDetail.cancelRequest}
         </button>
       )}
       {error && <p className="text-sm text-coral">{error}</p>}
-      <p className="text-center text-xs text-muted">
-        Escrow i uplate su simulirani u ovoj verziji.
-      </p>
+      <p className="text-center text-xs text-muted">{t.common.simulatedNote}</p>
     </div>
   );
 }

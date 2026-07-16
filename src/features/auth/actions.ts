@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getT } from "@/i18n/server";
 import { avatarColorFor } from "./avatarColor";
 import type { UserRole } from "@/lib/types";
 
@@ -38,11 +39,12 @@ export async function signUpWithEmail(
   const name = String(formData.get("name") ?? "").trim();
   const role = normalizeRole(formData.get("role"));
 
+  const { t } = await getT();
   if (!email || !password || !name) {
-    return { ok: false, error: "Popuni ime, mejl i lozinku." };
+    return { ok: false, error: t.auth.errFillNameEmailPass };
   }
   if (password.length < 6) {
-    return { ok: false, error: "Lozinka mora imati bar 6 karaktera." };
+    return { ok: false, error: t.auth.errPasswordShort };
   }
 
   const supabase = await createClient();
@@ -64,8 +66,9 @@ export async function signInWithEmail(
 ): Promise<AuthResult> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const { t } = await getT();
   if (!email || !password) {
-    return { ok: false, error: "Unesi mejl i lozinku." };
+    return { ok: false, error: t.auth.errFillEmailPass };
   }
 
   const supabase = await createClient();
@@ -85,7 +88,8 @@ export async function sendPhoneOtp(
   formData: FormData,
 ): Promise<AuthResult> {
   const phone = String(formData.get("phone") ?? "").trim();
-  if (!phone) return { ok: false, error: "Unesi broj telefona." };
+  const { t } = await getT();
+  if (!phone) return { ok: false, error: t.auth.errPhone };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({ phone });
@@ -97,11 +101,7 @@ export async function sendPhoneOtp(
     console.log(
       `[DEV OTP] SMS provajder nije podešen. Koristi test kod ${process.env.NEXT_PUBLIC_DEV_OTP ?? "123456"} za demo brojeve (vidi supabase/config.toml).`,
     );
-    return {
-      ok: false,
-      error:
-        "SMS nije podešen. U dev modu koristi demo broj i kod 123456 (vidi README).",
-    };
+    return { ok: false, error: t.auth.errSmsNotConfigured };
   }
   return { ok: true, step: "code" };
 }
@@ -115,7 +115,8 @@ export async function verifyPhoneOtp(
   const name = String(formData.get("name") ?? "").trim();
   const role = normalizeRole(formData.get("role"));
 
-  if (!token) return { ok: false, error: "Unesi kod iz SMS-a." };
+  const { t } = await getT();
+  if (!token) return { ok: false, error: t.auth.errEnterCode };
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.verifyOtp({

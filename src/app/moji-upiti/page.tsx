@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getOrganizerBookings } from "@/lib/db/queries";
+import { getT } from "@/i18n/server";
 import { Avatar } from "@/components/ui/Avatar";
 import { StatusChip, MarketChip } from "@/components/ui/StatusChip";
 import { formatEur, formatDate } from "@/lib/constants";
@@ -14,27 +15,30 @@ export default async function MyBookingsPage() {
   if (!user) redirect("/prijava?next=/moji-upiti");
   if (user.role !== "ORGANIZER") redirect("/panel");
 
-  const bookings = await getOrganizerBookings(user.id);
+  const [bookings, { t }] = await Promise.all([
+    getOrganizerBookings(user.id),
+    getT(),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-ink">Moji upiti</h1>
-          <p className="mt-1 text-muted">Prati status svojih rezervacija i escrow.</p>
+          <h1 className="font-display text-3xl font-bold text-ink">{t.myBookings.title}</h1>
+          <p className="mt-1 text-muted">{t.myBookings.subtitle}</p>
         </div>
         <Link href="/pretraga" className="btn-primary">
-          Novi upit
+          {t.myBookings.newRequest}
         </Link>
       </div>
 
       {bookings.length === 0 ? (
         <div className="card flex flex-col items-center p-12 text-center">
           <div className="mb-3 text-4xl">📩</div>
-          <h3 className="font-display text-lg font-bold text-ink">Još nema upita</h3>
-          <p className="mt-1 text-sm text-muted">Pronađi bend i pošalji prvi upit.</p>
+          <h3 className="font-display text-lg font-bold text-ink">{t.myBookings.emptyTitle}</h3>
+          <p className="mt-1 text-sm text-muted">{t.myBookings.emptyBody}</p>
           <Link href="/pretraga" className="btn-primary mt-4">
-            Pretraži bendove
+            {t.myBookings.searchBands}
           </Link>
         </div>
       ) : (

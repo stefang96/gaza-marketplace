@@ -10,6 +10,7 @@ import {
   type AuthResult,
 } from "./actions";
 import { GoogleButton } from "./GoogleButton";
+import { useT } from "@/i18n/provider";
 import type { UserRole } from "@/lib/types";
 
 const EMPTY: AuthResult = { ok: false };
@@ -18,6 +19,7 @@ type Mode = "login" | "register";
 type Method = "email" | "phone";
 
 export function AuthCard({ mode }: { mode: Mode }) {
+  const t = useT();
   const [method, setMethod] = useState<Method>("email");
   // Registration role bucket: supply side (MANAGER) vs demand side (ORGANIZER).
   const [role, setRole] = useState<UserRole>("MANAGER");
@@ -26,25 +28,21 @@ export function AuthCard({ mode }: { mode: Mode }) {
     <div className="mx-auto w-full max-w-md">
       <div className="card p-6 sm:p-8">
         <h1 className="font-display text-2xl font-bold text-ink">
-          {mode === "login" ? "Prijava" : "Napravi nalog"}
+          {mode === "login" ? t.auth.loginTitle : t.auth.registerTitle}
         </h1>
         <p className="mt-1 text-sm text-muted">
-          {mode === "login"
-            ? "Dobrodošao nazad na Gažu."
-            : "Nekoliko klikova i spreman si za prvu gažu."}
+          {mode === "login" ? t.auth.loginSubtitle : t.auth.registerSubtitle}
         </p>
 
-        {mode === "register" && (
-          <RolePicker role={role} onChange={setRole} />
-        )}
+        {mode === "register" && <RolePicker role={role} onChange={setRole} />}
 
         {/* Method tabs */}
         <div className="mt-6 grid grid-cols-2 gap-1 rounded-[12px] bg-surface-2 p-1">
           <TabButton active={method === "email"} onClick={() => setMethod("email")}>
-            Mejl
+            {t.auth.tabEmail}
           </TabButton>
           <TabButton active={method === "phone"} onClick={() => setMethod("phone")}>
-            Telefon
+            {t.auth.tabPhone}
           </TabButton>
         </div>
 
@@ -58,7 +56,7 @@ export function AuthCard({ mode }: { mode: Mode }) {
 
         <div className="my-5 flex items-center gap-3 text-xs text-muted">
           <span className="h-px flex-1 bg-line" />
-          ili
+          {t.auth.or}
           <span className="h-px flex-1 bg-line" />
         </div>
 
@@ -67,16 +65,16 @@ export function AuthCard({ mode }: { mode: Mode }) {
         <p className="mt-6 text-center text-sm text-muted">
           {mode === "login" ? (
             <>
-              Nemaš nalog?{" "}
+              {t.auth.noAccount}{" "}
               <Link href="/registracija" className="font-semibold text-accent">
-                Registruj se
+                {t.auth.goRegister}
               </Link>
             </>
           ) : (
             <>
-              Već imaš nalog?{" "}
+              {t.auth.haveAccount}{" "}
               <Link href="/prijava" className="font-semibold text-accent">
-                Prijavi se
+                {t.auth.goLogin}
               </Link>
             </>
           )}
@@ -93,21 +91,22 @@ function RolePicker({
   role: UserRole;
   onChange: (r: UserRole) => void;
 }) {
+  const t = useT();
   return (
     <div className="mt-6">
-      <span className="label">Ko si ti?</span>
+      <span className="label">{t.auth.whoAreYou}</span>
       <div className="grid grid-cols-2 gap-2">
         <RoleOption
           active={role === "MANAGER"}
           onClick={() => onChange("MANAGER")}
-          title="Izvođač / Menadžer"
-          sub="Sviram ili vodim bendove"
+          title={t.auth.roleSupplyTitle}
+          sub={t.auth.roleSupplySub}
         />
         <RoleOption
           active={role === "ORGANIZER"}
           onClick={() => onChange("ORGANIZER")}
-          title="Naručilac"
-          sub="Tražim bend za proslavu"
+          title={t.auth.roleOrganizerTitle}
+          sub={t.auth.roleOrganizerSub}
         />
       </div>
     </div>
@@ -164,6 +163,7 @@ function TabButton({
 }
 
 function EmailForm({ mode, role }: { mode: Mode; role: UserRole }) {
+  const t = useT();
   const action = mode === "login" ? signInWithEmail : signUpWithEmail;
   const [state, formAction, pending] = useActionState(action, EMPTY);
 
@@ -173,14 +173,14 @@ function EmailForm({ mode, role }: { mode: Mode; role: UserRole }) {
       {mode === "register" && (
         <div>
           <label className="label" htmlFor="name">
-            Ime i prezime / naziv
+            {t.auth.nameLabel}
           </label>
-          <input id="name" name="name" className="input" placeholder="npr. Nenad Kovač" />
+          <input id="name" name="name" className="input" placeholder={t.auth.namePlaceholder} />
         </div>
       )}
       <div>
         <label className="label" htmlFor="email">
-          Mejl
+          {t.auth.emailLabel}
         </label>
         <input
           id="email"
@@ -193,7 +193,7 @@ function EmailForm({ mode, role }: { mode: Mode; role: UserRole }) {
       </div>
       <div>
         <label className="label" htmlFor="password">
-          Lozinka
+          {t.auth.passwordLabel}
         </label>
         <input
           id="password"
@@ -206,13 +206,14 @@ function EmailForm({ mode, role }: { mode: Mode; role: UserRole }) {
       </div>
       {state.error && <p className="text-sm text-coral">{state.error}</p>}
       <button type="submit" className="btn-primary w-full" disabled={pending}>
-        {pending ? "Trenutak…" : mode === "login" ? "Prijavi se" : "Napravi nalog"}
+        {pending ? t.common.loading : mode === "login" ? t.auth.doLogin : t.auth.doRegister}
       </button>
     </form>
   );
 }
 
 function PhoneForm({ mode, role }: { mode: Mode; role: UserRole }) {
+  const t = useT();
   const [sendState, sendAction, sending] = useActionState(sendPhoneOtp, EMPTY);
   const [verifyState, verifyAction, verifying] = useActionState(verifyPhoneOtp, EMPTY);
   const [phone, setPhone] = useState("");
@@ -226,14 +227,14 @@ function PhoneForm({ mode, role }: { mode: Mode; role: UserRole }) {
           {mode === "register" && (
             <div>
               <label className="label" htmlFor="pname">
-                Ime i prezime / naziv
+                {t.auth.nameLabel}
               </label>
-              <input id="pname" name="name" className="input" placeholder="npr. Milica Stefanović" />
+              <input id="pname" name="name" className="input" placeholder={t.auth.namePlaceholder} />
             </div>
           )}
           <div>
             <label className="label" htmlFor="phone">
-              Broj telefona
+              {t.auth.phoneLabel}
             </label>
             <input
               id="phone"
@@ -248,11 +249,9 @@ function PhoneForm({ mode, role }: { mode: Mode; role: UserRole }) {
           </div>
           {sendState.error && <p className="text-sm text-coral">{sendState.error}</p>}
           <button type="submit" className="btn-primary w-full" disabled={sending}>
-            {sending ? "Šaljem kod…" : "Pošalji SMS kod"}
+            {sending ? t.auth.sendingCode : t.auth.sendCode}
           </button>
-          <p className="text-center text-xs text-muted">
-            Dev režim: koristi kod <span className="font-semibold">123456</span>.
-          </p>
+          <p className="text-center text-xs text-muted">{t.auth.devOtpNote}</p>
         </form>
       ) : (
         <form action={verifyAction} className="space-y-4">
@@ -260,7 +259,7 @@ function PhoneForm({ mode, role }: { mode: Mode; role: UserRole }) {
           <input type="hidden" name="role" value={role} />
           <div>
             <label className="label" htmlFor="token">
-              Kod iz SMS-a
+              {t.auth.codeLabel}
             </label>
             <input
               id="token"
@@ -270,13 +269,13 @@ function PhoneForm({ mode, role }: { mode: Mode; role: UserRole }) {
               placeholder="123456"
               maxLength={6}
             />
-            <p className="mt-1.5 text-xs text-muted">Poslato na {phone}</p>
+            <p className="mt-1.5 text-xs text-muted">
+              {t.auth.sentTo} {phone}
+            </p>
           </div>
-          {verifyState.error && (
-            <p className="text-sm text-coral">{verifyState.error}</p>
-          )}
+          {verifyState.error && <p className="text-sm text-coral">{verifyState.error}</p>}
           <button type="submit" className="btn-primary w-full" disabled={verifying}>
-            {verifying ? "Proveravam…" : "Potvrdi kod"}
+            {verifying ? t.auth.verifying : t.auth.verifyCode}
           </button>
         </form>
       )}
