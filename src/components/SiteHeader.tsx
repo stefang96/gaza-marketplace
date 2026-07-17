@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { Avatar } from "./ui/Avatar";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { MobileNav, type NavItem } from "./MobileNav";
+import { NavLinks } from "./NavLinks";
 import { getSessionUser } from "@/lib/auth";
 import { getT } from "@/i18n/server";
 import { SignOutButton } from "@/features/auth/SignOutButton";
@@ -11,13 +12,11 @@ export async function SiteHeader() {
   const [user, { t }] = await Promise.all([getSessionUser(), getT()]);
   const isOrganizer = user?.role === "ORGANIZER";
 
-  // Same links for the mobile hamburger menu, per role.
-  const mobileItems: NavItem[] = !user
+  // Core nav per role (desktop tabs).
+  const navItems: NavItem[] = !user
     ? [
         { href: "/za-organizatore", label: t.header.forOrganizers },
         { href: "/za-izvodjace", label: t.header.forArtists },
-        { href: "/prijava", label: t.header.login },
-        { href: "/registracija", label: t.header.register },
       ]
     : isOrganizer
       ? [
@@ -29,6 +28,15 @@ export async function SiteHeader() {
           { href: "/panel/izvodjaci", label: t.header.artists },
         ];
 
+  // Mobile menu adds auth links for guests.
+  const mobileItems: NavItem[] = !user
+    ? [
+        ...navItems,
+        { href: "/prijava", label: t.header.login },
+        { href: "/registracija", label: t.header.register },
+      ]
+    : navItems;
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -36,24 +44,7 @@ export async function SiteHeader() {
           <MobileNav items={mobileItems} />
           <Logo />
           <nav className="hidden items-center gap-1 md:flex">
-            {!user && (
-              <>
-                <NavLink href="/za-organizatore">{t.header.forOrganizers}</NavLink>
-                <NavLink href="/za-izvodjace">{t.header.forArtists}</NavLink>
-              </>
-            )}
-            {user && isOrganizer && (
-              <>
-                <NavLink href="/pretraga">{t.header.search}</NavLink>
-                <NavLink href="/moji-upiti">{t.header.myBookings}</NavLink>
-              </>
-            )}
-            {user && !isOrganizer && (
-              <>
-                <NavLink href="/panel">{t.header.panel}</NavLink>
-                <NavLink href="/panel/izvodjaci">{t.header.artists}</NavLink>
-              </>
-            )}
+            <NavLinks items={navItems} />
           </nav>
         </div>
 
@@ -84,16 +75,5 @@ export async function SiteHeader() {
         </div>
       </div>
     </header>
-  );
-}
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="rounded-[10px] px-3 py-2 text-sm font-medium text-ink-soft hover:bg-surface-2 hover:text-ink"
-    >
-      {children}
-    </Link>
   );
 }

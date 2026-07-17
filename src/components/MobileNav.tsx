@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export interface NavItem {
   href: string;
@@ -12,6 +13,10 @@ export interface NavItem {
 export function MobileNav({ items }: { items: NavItem[] }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const activeHref = items
+    .filter((i) => pathname === i.href || pathname.startsWith(i.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -43,16 +48,24 @@ export function MobileNav({ items }: { items: NavItem[] }) {
 
       {open && (
         <div className="absolute left-0 z-50 mt-2 w-52 overflow-hidden rounded-[12px] border border-line bg-surface p-1 shadow-soft-lg">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="block rounded-[9px] px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-surface-2 hover:text-ink"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {items.map((item) => {
+            const active = item.href === activeHref;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className={
+                  active
+                    ? "block rounded-[9px] bg-accent-soft px-3 py-2.5 text-sm font-semibold text-accent-strong"
+                    : "block rounded-[9px] px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-surface-2 hover:text-ink"
+                }
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
